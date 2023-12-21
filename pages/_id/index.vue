@@ -1,12 +1,10 @@
 <template>
   <div class="nuxt-content">
-    <!-- Botón de retorno -->
-    <div class="boton-retorno mb-4">
-      <NuxtLink to="/">&lt; <span>VOLVER</span></NuxtLink>
-    </div>
-
     <!-- Imagen en caso de error -->
     <div v-if="error">
+      <div v-if="!FormActive" class="boton-retorno mb-4">
+        <NuxtLink :to="`../`">&lt; <span>VOLVER</span></NuxtLink>
+      </div>
       <div class="mostrar-error">
         <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 586.47858 659.29778"
           xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -102,133 +100,156 @@
         <NuxtLink to="/login" class="enlace-login"><button>Iniciar sesión</button></NuxtLink>
       </div>
     </div>
-
     <!-- Contenido en caso de éxito -->
     <div v-else>
+      <!-- Botón de retorno -->
+      <div v-if="!FormActive" class="boton-retorno mb-4">
+        <NuxtLink :to="`/${$route.params.id.replace('/', '%2F')}`">&lt; <span>VOLVER</span></NuxtLink>
+      </div>
       <!-- Contenido ya cargado -->
       <div v-if="!this.loading">
         <!-- Contenido seguimiento ya cargado -->
-        <div v-if="!error">
-          <div class="mb-4 tarea-parent">
-            <div class="tarea-info my-2">
+        <div v-if="!FormActive && error != true">
+          <div class="mb-2 tarea-parent">
+            <div class="tarea-info my-1">
               <!-- Contenido de empresa -->
-              <div class="mx-3">
-                <small class="num-visita">{{
-                  visita.visitaFieldata.Numero
-                }}</small>
-                <br />
+              <div class="mx-2 ml-3">
                 <span class="nombre-empresa">{{
-                  visita.visitaFieldata.Cliente
+                  visita.visitaFieldata["Visitas::Cliente"]
                 }}</span>
 
-                <p class="historico-texto mt-2">
-                  <b>{{ visita.visitaFieldata["Motivo Avería"] }} </b>
+                <p class="historico-info mt-2">
+                  {{ visita.visitaFieldata.NumeroServicio }}
+                  <b>{{ visita.visitaFieldata["Visitas::Motivo Avería"] }} </b>
                 </p>
               </div>
               <!-- Contenido de etiquetas -->
               <div class="etiquetas mx-3 my-4">
                 <b-badge><b-icon icon="calendar4"></b-icon>
-                  {{ convertirFecha(visita.visitaFieldata["Fecha"]) }}
+                  {{ convertirFecha(visita.visitaFieldata["FechaPrevista"]) }}
                 </b-badge>
-                <b-badge><b-icon icon="clock"></b-icon>
-                  {{ corregirHoras(visita.visitaFieldata["Hora"]) }}</b-badge>
-                <b-badge>Origen: {{ visita.visitaFieldata["Origen"] }}</b-badge>
-                <b-badge>Categoría: Intervención</b-badge>
+                <b-badge>Categoría: {{ visita.visitaFieldata["Origen"] }}</b-badge>
               </div>
+            </div>
+          </div>
+
+          <div class="mb-2 tarea-parent" v-if="visita.visitaFieldata.TrabajoRealizado">
+            <div class="realizado my-1">
+              <span class="realizado-titulo">TRABAJO REALIZADO</span>
+              <p class="realizado-texto">
+                {{ visita.visitaFieldata.TrabajoRealizado }}
+              </p>
             </div>
           </div>
 
           <div>
             <!-- Pestañas -->
             <div class="opciones-pestañas">
-              <b-col class="pestaña" :class="this.pestañaActiva === 'Visita' ? 'active' : 'inactive'"
-                @click="cambiarPestaña('Visita')"><b-icon icon="clock"></b-icon> Visitas</b-col>
+              <b-col class="pestaña" :class="this.pestañaActiva === 'Histórico' ? 'active' : 'inactive'
+                " @click="cambiarPestaña('Histórico')"><b-icon icon="clock"></b-icon> Histórico</b-col>
+              <b-col class="pestaña" :class="this.pestañaActiva === 'Adjuntos' ? 'active' : 'inactive'
+                " @click="cambiarPestaña('Adjuntos')"><b-icon icon="file-earmark"></b-icon> Adjuntos</b-col>
+              <b-col class="pestaña" :class="this.pestañaActiva === 'Materiales' ? 'active' : 'inactive'
+                " @click="cambiarPestaña('Materiales')"><b-icon icon="file-earmark"></b-icon> Materiales</b-col>
             </div>
 
             <!-- Contenido de seguimientos -->
-            <div class="div-pestaña" v-if="this.pestañaActiva == 'Visita'">
-              <b-row class="lista-historica">
-                <!-- Seguimiento pendientes de enviar al Filemaker -->
-                <div v-if="loading" class="historico store-loading row">
-                  <div class="mx-4 my-2">
-                    <p class="m-0 mes-texto">
-                      <b>{{
-                        convertirFechaTexto(currentDateFormatted, "mes")
-                      }}</b>
-                    </p>
-                    <h3>
-                      <b>{{
-                        convertirFechaTexto(currentDateFormatted, "día")
-                      }}</b>
-                    </h3>
-                  </div>
-                  <div class="mx-4 my-2">
-                    <small>Enviando a Filemaker...</small>
-                  </div>
+            <div class="div-pestaña" v-if="this.pestañaActiva == 'Histórico'">
+              <b-row v-if="checkHistorico() || this.$store.state.Horas.length > 0" class="lista-historica">
+                <!-- Las horas almacenadas en store -->
+                <div v-for="(element, index) in this.$store.state.Horas" :key="index" class="store-loading historico">
+                  <span>
+                    Día:<b> {{ element.Fecha }}</b> de
+                    <b>{{ corregirHoras(element.HoraInicio) }}h</b>
+                    a
+                    <b>{{ corregirHoras(element.HoraFin) }}h</b>
+                  </span>
+                  <p class="historico-texto">
+                    {{ element.Descripcion }}
+                  </p>
                 </div>
 
-                <!-- Listado de seguimientos -->
-                <div v-for="(Linea, index) in visita.VisitasServicios.slice(
-                  0,
-                  limite
-                )" :key="index" class="historico row">
-                  <div class="mx-4 my-2 historicoCalendario col">
-                    <p class="m-0 mes-texto">
-                      <b>{{
-                        convertirFechaTexto(
-                          Linea["VisitasServicios::Fecha"],
-                          "mes"
-                        )
-                      }}</b>
-                    </p>
-                    <h3 class="dia-mes">
-                      <b>{{
-                        convertirFechaTexto(
-                          Linea["VisitasServicios::Fecha"],
-                          "día"
-                        )
-                      }}</b>
-                    </h3>
-                  </div>
-
-                  <div class="mx-4 my-2 historicoTexto col">
-                    <NuxtLink :to="`/${$route.params.id.replace('/', '%2F')}/${Linea[
-                          'VisitasServicios::NumeroServicio'
-                        ].replace('/', '')}`">
-                      <small>{{
-                        Linea["VisitasServicios::NumeroServicio"]
-                      }}</small>
-                      <br />
-                      <span>{{
-                        Linea["VisitasServicios::TécnicoNombre"]
-                      }}</span>
-                      <p class="texto-tarea" :class="`${Linea['VisitasServicios::EstadoServicio'] ==
-                            'PENDIENTE'
-                            ? 'warning-text'
-                            : Linea['VisitasServicios::EstadoServicio'] ==
-                              'TERMINADO'
-                              ? 'success-text'
-                              : ''
-                          }`">
-                        {{ Linea["VisitasServicios::EstadoServicio"] }}
+                <!-- Contenido de seguimientos -->
+                <div v-for="(Linea, index) in visita.VisitasLineas" :key="index" class="historico row" v-if="Linea['VisitasLineas::Tipo'] === 'M.Obra' ? true : false && Linea
+                  ">
+                  <div class="historico-texto col-7">
+                    <b>
+                      <p class="historico-tecnico">
+                        {{ Linea["VisitasLineas::Tec"] }}
+                        {{ Linea["VisitasLineas::TecNom"] }}
                       </p>
-                      {{ Linea["VisitasServicios::TrabajoRealizado"] }}
-                    </NuxtLink>
+                    </b>
+                    <span class="historico-descripcionArt">{{
+                      Linea["VisitasLineas::DescripciónArt"]
+                    }}</span>
                   </div>
-                  <!-- <div v-if="Linea['VisitasServicios::EstadoServicio'] == 'PENDIENTE'
-                    " class="historicoBoton col">
-                    <b-button variant="success" @click="finishVisita(Linea.recordId)"><b-icon
-                        icon="check-lg"></b-icon></b-button>
-                  </div> -->
+                  <div class="historico-tiempo col text-right">
+                    <p class="historico-hora">
+                      <b-icon icon="clock"></b-icon>
+                      {{
+                        corregirHoras(Linea["VisitasLineas::HoraInicioReal"])
+                      }}
+                      -
+                      {{ corregirHoras(Linea["VisitasLineas::HoraFinReal"]) }}
+                    </p>
+
+                    <span class="historico-fecha"><b-icon icon="calendar4"></b-icon>{{
+                      " " + convertirFecha(Linea["VisitasLineas::Fecha"])
+                    }}</span>
+                  </div>
+                  <div class="historico-editar col-auto">
+                    <b-button variant="outline-primary" @click="editarHistorico(Linea)">
+                      Editar
+                    </b-button>
+                  </div>
                 </div>
+                <b-modal id="modal-editar-historico" title="Editar Historico" @hide="resetModal">
+                  <form @submit.prevent="handleEdit()">
+                    <!-- Input de Fecha (desactivado en este caso porque la fecha viene del historial existente) -->
+
+                    <!-- Seleccionar Técnico -->
+                    <b-row class="form-option my-3">
+                      <label>Técnico</label>
+                      <b-form-select v-model="historialAEditar['VisitasLineas::Tec']" :options="tecnicos"
+                        disabled></b-form-select>
+                    </b-row>
+
+                    <!-- Input de Hora Inicio -->
+                    <b-row class="form-option my-3">
+                      <label>Hora Inicio</label>
+                      <input v-model="historialAEditar['VisitasLineas::HoraInicioReal']" class="form-input" type="time"
+                        name="hora-inicio" required />
+                    </b-row>
+
+                    <!-- Input de Hora Final -->
+                    <b-row class="form-option my-3">
+                      <label>Hora Fin</label>
+                      <input v-model="historialAEditar['VisitasLineas::HoraFinReal']" class="form-input" type="time"
+                        name="hora-fin" required />
+                    </b-row>
+
+                    <!-- Input de Descripción -->
+                    <b-row class="form-option my-3">
+                      <label>Descripción</label>
+                      <b-form-textarea v-model="historialAEditar['VisitasLineas::DescripciónArt']" class="textarea"
+                        placeholder="Introduce la acción realizada" required></b-form-textarea>
+                    </b-row>
+
+                    <!-- Botón para guardar cambios -->
+                    <b-row class="form-option my-4">
+                      <b-button variant="outline-primary" type="submit" >
+                        Guardar Cambios
+                      </b-button>
+                    </b-row>
+                  </form>
+                </b-modal>
                 <div class="boton-carga-parent">
-                  <button v-if="limite < visita.VisitasServicios.length" style="z-index: 9" class="boton-carga"
+                  <button v-if="limite < visita.VisitasLineas.length" style="z-index: 9" class="boton-carga"
                     @click="limite += 5">
                     Cargar más
                   </button>
 
-                  <span class="ml-1" v-if="limite >= visita.VisitasServicios.length">Límite {{
-                    visita.VisitasServicios.length }} registros
+                  <span class="ml-1" v-if="limite >= visita.VisitasLineas.length">Límite {{ historicoLength() }} registros
                     alcanzado</span>
 
                   <button v-if="limite > 5" style="z-index: 9" class="boton-carga" @click="limite -= 5">
@@ -237,7 +258,103 @@
                 </div>
               </b-row>
               <!-- No contenido -->
-              <div class="no-data" v-if="visita.VisitasServicios.length === 0 && !loading">
+              <div class="no-data" v-else>
+                <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" width="200" height="200"
+                  viewBox="0 0 647.63626 632.17383" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <path
+                    d="M687.3279,276.08691H512.81813a15.01828,15.01828,0,0,0-15,15v387.85l-2,.61005-42.81006,13.11a8.00676,8.00676,0,0,1-9.98974-5.31L315.678,271.39691a8.00313,8.00313,0,0,1,5.31006-9.99l65.97022-20.2,191.25-58.54,65.96972-20.2a7.98927,7.98927,0,0,1,9.99024,5.3l32.5498,106.32Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#f2f2f2" />
+                  <path
+                    d="M725.408,274.08691l-39.23-128.14a16.99368,16.99368,0,0,0-21.23-11.28l-92.75,28.39L380.95827,221.60693l-92.75,28.4a17.0152,17.0152,0,0,0-11.28028,21.23l134.08008,437.93a17.02661,17.02661,0,0,0,16.26026,12.03,16.78926,16.78926,0,0,0,4.96972-.75l63.58008-19.46,2-.62v-2.09l-2,.61-64.16992,19.65a15.01489,15.01489,0,0,1-18.73-9.95l-134.06983-437.94a14.97935,14.97935,0,0,1,9.94971-18.73l92.75-28.4,191.24024-58.54,92.75-28.4a15.15551,15.15551,0,0,1,4.40966-.66,15.01461,15.01461,0,0,1,14.32032,10.61l39.0498,127.56.62012,2h2.08008Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#3f3d56" />
+                  <path
+                    d="M398.86279,261.73389a9.0157,9.0157,0,0,1-8.61133-6.3667l-12.88037-42.07178a8.99884,8.99884,0,0,1,5.9712-11.24023l175.939-53.86377a9.00867,9.00867,0,0,1,11.24072,5.9707l12.88037,42.07227a9.01029,9.01029,0,0,1-5.9707,11.24072L401.49219,261.33887A8.976,8.976,0,0,1,398.86279,261.73389Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#000000" />
+                  <circle cx="190.15351" cy="24.95465" r="20" fill="#000000" />
+                  <circle cx="190.15351" cy="24.95465" r="12.66462" fill="#fff" />
+                  <path
+                    d="M878.81836,716.08691h-338a8.50981,8.50981,0,0,1-8.5-8.5v-405a8.50951,8.50951,0,0,1,8.5-8.5h338a8.50982,8.50982,0,0,1,8.5,8.5v405A8.51013,8.51013,0,0,1,878.81836,716.08691Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#e6e6e6" />
+                  <path
+                    d="M723.31813,274.08691h-210.5a17.02411,17.02411,0,0,0-17,17v407.8l2-.61v-407.19a15.01828,15.01828,0,0,1,15-15H723.93825Zm183.5,0h-394a17.02411,17.02411,0,0,0-17,17v458a17.0241,17.0241,0,0,0,17,17h394a17.0241,17.0241,0,0,0,17-17v-458A17.02411,17.02411,0,0,0,906.81813,274.08691Zm15,475a15.01828,15.01828,0,0,1-15,15h-394a15.01828,15.01828,0,0,1-15-15v-458a15.01828,15.01828,0,0,1,15-15h394a15.01828,15.01828,0,0,1,15,15Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#3f3d56" />
+                  <path
+                    d="M801.81836,318.08691h-184a9.01015,9.01015,0,0,1-9-9v-44a9.01016,9.01016,0,0,1,9-9h184a9.01016,9.01016,0,0,1,9,9v44A9.01015,9.01015,0,0,1,801.81836,318.08691Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#000000" />
+                  <circle cx="433.63626" cy="105.17383" r="20" fill="#000000" />
+                  <circle cx="433.63626" cy="105.17383" r="12.18187" fill="#fff" />
+                </svg>
+                <p class="ml-2 text-center">No hay archivos a mostrar</p>
+              </div>
+            </div>
+            <!-- Contenido de adjuntos -->
+            <div class="div-pestaña" v-if="this.pestañaActiva === 'Adjuntos'">
+              <b-row v-if="visita.VisitasFotos.length > 0" class="lista-adjuntos">
+                <Gallery :images="visita.VisitasFotos" @deleteFile="getVisita()" />
+                <div class="boton-carga-parent">
+                  <span class="ml-1" v-if="limiteDocumentos >= visita.VisitasFotos.length">Límite {{
+                    visita.VisitasFotos.length }} registros
+                    alcanzado</span>
+                </div>
+              </b-row>
+
+              <div class="no-data" v-else>
+                <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" width="200" height="200"
+                  viewBox="0 0 647.63626 632.17383" xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <path
+                    d="M687.3279,276.08691H512.81813a15.01828,15.01828,0,0,0-15,15v387.85l-2,.61005-42.81006,13.11a8.00676,8.00676,0,0,1-9.98974-5.31L315.678,271.39691a8.00313,8.00313,0,0,1,5.31006-9.99l65.97022-20.2,191.25-58.54,65.96972-20.2a7.98927,7.98927,0,0,1,9.99024,5.3l32.5498,106.32Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#f2f2f2" />
+                  <path
+                    d="M725.408,274.08691l-39.23-128.14a16.99368,16.99368,0,0,0-21.23-11.28l-92.75,28.39L380.95827,221.60693l-92.75,28.4a17.0152,17.0152,0,0,0-11.28028,21.23l134.08008,437.93a17.02661,17.02661,0,0,0,16.26026,12.03,16.78926,16.78926,0,0,0,4.96972-.75l63.58008-19.46,2-.62v-2.09l-2,.61-64.16992,19.65a15.01489,15.01489,0,0,1-18.73-9.95l-134.06983-437.94a14.97935,14.97935,0,0,1,9.94971-18.73l92.75-28.4,191.24024-58.54,92.75-28.4a15.15551,15.15551,0,0,1,4.40966-.66,15.01461,15.01461,0,0,1,14.32032,10.61l39.0498,127.56.62012,2h2.08008Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#3f3d56" />
+                  <path
+                    d="M398.86279,261.73389a9.0157,9.0157,0,0,1-8.61133-6.3667l-12.88037-42.07178a8.99884,8.99884,0,0,1,5.9712-11.24023l175.939-53.86377a9.00867,9.00867,0,0,1,11.24072,5.9707l12.88037,42.07227a9.01029,9.01029,0,0,1-5.9707,11.24072L401.49219,261.33887A8.976,8.976,0,0,1,398.86279,261.73389Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#000000" />
+                  <circle cx="190.15351" cy="24.95465" r="20" fill="#000000" />
+                  <circle cx="190.15351" cy="24.95465" r="12.66462" fill="#fff" />
+                  <path
+                    d="M878.81836,716.08691h-338a8.50981,8.50981,0,0,1-8.5-8.5v-405a8.50951,8.50951,0,0,1,8.5-8.5h338a8.50982,8.50982,0,0,1,8.5,8.5v405A8.51013,8.51013,0,0,1,878.81836,716.08691Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#e6e6e6" />
+                  <path
+                    d="M723.31813,274.08691h-210.5a17.02411,17.02411,0,0,0-17,17v407.8l2-.61v-407.19a15.01828,15.01828,0,0,1,15-15H723.93825Zm183.5,0h-394a17.02411,17.02411,0,0,0-17,17v458a17.0241,17.0241,0,0,0,17,17h394a17.0241,17.0241,0,0,0,17-17v-458A17.02411,17.02411,0,0,0,906.81813,274.08691Zm15,475a15.01828,15.01828,0,0,1-15,15h-394a15.01828,15.01828,0,0,1-15-15v-458a15.01828,15.01828,0,0,1,15-15h394a15.01828,15.01828,0,0,1,15,15Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#3f3d56" />
+                  <path
+                    d="M801.81836,318.08691h-184a9.01015,9.01015,0,0,1-9-9v-44a9.01016,9.01016,0,0,1,9-9h184a9.01016,9.01016,0,0,1,9,9v44A9.01015,9.01015,0,0,1,801.81836,318.08691Z"
+                    transform="translate(-276.18187 -133.91309)" fill="#000000" />
+                  <circle cx="433.63626" cy="105.17383" r="20" fill="#000000" />
+                  <circle cx="433.63626" cy="105.17383" r="12.18187" fill="#fff" />
+                </svg>
+                <p class="ml-2 text-center">No hay archivos a mostrar</p>
+              </div>
+            </div>
+            <!-- Contenido de materiales-->
+            <div class="div-pestaña" v-if="this.pestañaActiva === 'Materiales'">
+              <b-row v-if="checkMateriales() || this.$store.state.Horas.length > 0" class="lista-historica">
+                <div v-for="(Linea, index) in visita.VisitasLineas" :key="index" class="historico"
+                  v-if="Linea['VisitasLineas::Tipo'] === '' ? true : false">
+                  <div v-if="Linea['VisitasLineas::Tipo'] === ''">
+                    <p class="historico-texto">
+                      {{ Linea["VisitasLineas::Unidades"] }} x
+                      {{ Linea["VisitasLineas::DescripciónArt"] }}
+                    </p>
+                  </div>
+                </div>
+                <div class="boton-carga-parent">
+                  <button v-if="limite < visita.VisitasLineas.length" style="z-index: 9" class="boton-carga"
+                    @click="limite += 5">
+                    Cargar más
+                  </button>
+
+                  <span class="ml-1" v-if="limite >= visita.VisitasLineas.length">Límite {{ materialesLength() }}
+                    registros alcanzado</span>
+
+                  <button v-if="limite > 5" style="z-index: 9" class="boton-carga" @click="limite -= 5">
+                    Ocultar
+                  </button>
+                </div>
+              </b-row>
+
+              <div class="no-data" v-else>
                 <svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" width="200" height="200"
                   viewBox="0 0 647.63626 632.17383" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <path
@@ -268,10 +385,71 @@
             </div>
           </div>
         </div>
+
+        <!-- Componente form activo -->
+        <div v-if="FormActive && this.pestañaActiva === 'Histórico'">
+          <div @click="
+            FormActive = false;
+          getVisita();
+          loading = true;
+          " class="boton-retorno mb-4">
+            &lt;
+            <span>VOLVER</span>
+          </div>
+          <!-- Formulario componente -->
+          <Form :visita="visita" :pestañaActiva="pestañaActiva" />
+        </div>
+
+        <div v-if="FormActive && this.pestañaActiva === 'Materiales'">
+          <div @click="
+            FormActive = false;
+          getVisita();
+          loading = true;
+          " class="boton-retorno mb-4">
+            &lt;
+            <span>VOLVER</span>
+          </div>
+          <!-- Formulario componente -->
+          <FormMateriales :visita="visita" :pestañaActiva="pestañaActiva" />
+        </div>
       </div>
-      <!-- Botón de  en Visita -->
-      <div v-if="pestañaActiva === 'Visita' && this.loading === false" class="añadir">
-        <b-icon @click="crearVisita()" style="width: 60px; height: 60px" icon="plus-circle-fill"></b-icon>
+
+      <!-- Cargando contenido spinner -->
+      <div v-else class="spinner-parent">
+        <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+        <p>Cargando...</p>
+      </div>
+
+      <!-- Botón de añadir en Histórico -->
+      <div v-if="!FormActive &&
+        pestañaActiva == 'Histórico' &&
+        this.loading === false &&
+        visita.visitaFieldata.EstadoServicio == 'PENDIENTE'
+        " class="añadir">
+        <b-icon @click="FormActive = true" style="width: 60px; height: 60px" icon="plus-circle-fill"></b-icon>
+      </div>
+
+      <!-- Botón de añadir en Adjuntos -->
+      <div v-if="!FormActive &&
+        pestañaActiva === 'Adjuntos' &&
+        this.loading === false &&
+        visita.visitaFieldata.EstadoServicio == 'PENDIENTE'
+        " class="añadir">
+        <label>
+          <b-icon style="width: 60px; height: 60px" icon="plus-circle-fill"></b-icon>
+          <b-form-file style="display: none" :state="Boolean(archivoSubir)" accept=".jpg, .png, .pdf, .webp, .jpeg"
+            id="archivo" type="file" name="archivo" v-model="archivoSubir" @change="crearDocumento" />
+        </label>
+      </div>
+
+      <!-- Botón de añadir en Materiales -->
+
+      <div v-if="!FormActive &&
+        pestañaActiva === 'Materiales' &&
+        this.loading === false &&
+        visita.visitaFieldata.EstadoServicio == 'PENDIENTE'
+        " class="añadir">
+        <b-icon @click="FormActive = true" style="width: 60px; height: 60px" icon="plus-circle-fill"></b-icon>
       </div>
     </div>
   </div>
@@ -279,14 +457,17 @@
 
 <script>
 import Swal from "sweetalert2";
+import Form from "../../components/Form.vue";
+import FormMateriales from "../../components/FormMateriales.vue";
 export default {
   layout: "default",
   data() {
     return {
-      pestañaActiva: "Visita",
+      FormActive: false,
+      pestañaActiva: "Histórico",
       visita: {
         fieldData: {},
-        VisitasServicios: {},
+        VisitasLineas: {},
         VisitasFotos: {},
       },
       error: false,
@@ -294,8 +475,6 @@ export default {
       limiteDocumentos: 5,
       archivoSubir: null,
       loading: true,
-      currentDateFormatted: `${new Date().getMonth() + 1
-        }/${new Date().getDate()}/${new Date().getFullYear()}`,
       extensionesPermitidas: [
         "jpg",
         "jpeg",
@@ -308,158 +487,132 @@ export default {
         "WEBP",
         "PDF",
       ],
+      historialAEditar: {
+        'VisitasLineas::Fecha': '',
+        'VisitasLineas::Tec': '',
+        'VisitasLineas::TecNom': '',
+        'VisitasLineas::HoraInicioReal': '',
+        'VisitasLineas::HoraFinReal': '',
+        'VisitasLineas::DescripciónArt': '',
+        'recordId': ''
+        // Asegúrate de incluir todas las propiedades que necesites
+      },
+      tecnicos: [],
     };
   },
   methods: {
     cambiarPestaña(PestañaSeleccionada) {
       this.pestañaActiva = PestañaSeleccionada;
     },
-    agregarCeroSiNecesario(numero) {
-      return (numero < 10 ? '0' : '') + numero;
-    },
-    getUserLocation() {
-      return new Promise((resolve, reject) => {
-        if ("geolocation" in navigator) {
-          const options = {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          };
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              let lat = position.coords.latitude.toString();
-              let lon = position.coords.longitude.toString();
-              lat = lat.replace(',', '.');
-              lon = lon.replace(',', '.');
-              let ubi = lat + ", " + lon;
-              resolve(ubi);
-            },
-            (error) => {
-              Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                confirmButtonColor: "#000",
-                text: `La geolocalización no está disponible o el usuario no dio permiso. `,
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  window.location.href = window.location.href
-                }
-              });
-              console.error(error);
-              reject('La geolocalización no está disponible o el usuario no dio permiso.');
-            }, options
-          );
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            confirmButtonColor: "#000",
-            text: `La geolocalización no está disponible en tu navegador. `,
-          }).then((result) => {
-                if (result.isConfirmed) {
-                  window.location.href = window.location.href
-                }
-              });
-          reject('La geolocalización no está disponible en tu navegador.');
-        }
-      });
-    },
-    obtenerHoraActual() {
-      var ahora = new Date();
-      var horas = this.agregarCeroSiNecesario(ahora.getHours());
-      var minutos = this.agregarCeroSiNecesario(ahora.getMinutes());
-      var segundos = this.agregarCeroSiNecesario(ahora.getSeconds());
-      var horaFormateada = horas + ':' + minutos + ':' + segundos;
-      return horaFormateada;
-    },
-    getTodayDate() {
-      // Obtener la fecha actual
-      var fecha = new Date();
-
-      // Obtener el día, el mes y el año
-      var dia = fecha.getDate();
-      var mes = fecha.getMonth() + 1; // getMonth() devuelve un número entre 0 y 11, por lo que sumamos 1 para obtener el mes correcto
-      var anio = fecha.getFullYear();
-
-      // Formatear el día y el mes para asegurarnos de que siempre tengan dos dígitos
-      if (dia < 10) dia = '0' + dia;
-      if (mes < 10) mes = '0' + mes;
-
-      // Crear la cadena de fecha en el formato deseado
-      var fechaFormateada = mes + '/' + dia + '/' + anio;
-
-      return fechaFormateada;
-    },
-
-    async crearVisita() {
-      let userLocation = "";
-      try {
-        userLocation = await this.getUserLocation();
-        console.log('ubicacion actual: ', userLocation);
-        // Resto del código ...
-      } catch (e) {
-        this.error = true;
-        console.log(e);
+    async crearDocumento(event) {
+      let fichero = event.target.files[0];
+      if (fichero === undefined) {
+        Swal.fire({
+          icon: "error",
+          title: "Sin documentos",
+          text: "Pruebe a insertar un documento con extensión permitida",
+        });
+        return;
       }
-      if (userLocation) {
-        let data = {
-          tec: this.$store.state.User,
-          numeroServicio: this.visita[0].fieldData.NumeroServicio,
-          horaActual: this.obtenerHoraActual(),
-          UserLocation: userLocation,
-          fecha: this.getTodayDate(),
-        };
-        this.loading = true;
-        this.$axios
-          .post(`/api/visitas/new`, {
-            data,
+      let ficheroComprobado = this.validacionDocmento(fichero);
+      if (!ficheroComprobado) {
+        Swal.fire({
+          icon: "error",
+          title: "Documento no válido",
+          text: "Pruebe a insertar un documento con extensión permitida",
+        });
+        return;
+      }
+      let IdVisita = this.visita.visitaFieldata.NumeroServicio;
+      let IdVisita2 = this.visita.visitaFieldata.Numero;
+      let NumeroVisitaServicio = this.visita.visitaFieldata.NumeroVisita;
+      let documento = event.target.files[0];
+      let formulario = {
+        IdVisita: NumeroVisitaServicio,
+        IdVisita2: IdVisita2,
+        NumeroVisitaServicio: IdVisita,
+      };
+      this.loading = true;
+      try {
+        this.nuevoDocumento = await this.$axios.$post(
+          `api/visitas/documento/new`,
+          {
+            formulario,
             headers: {
               Authorization: `Bearer ${this.$cookies.get("TOKEN")}`,
             },
-          })
-          .then((response) => {
+          }
+        );
+        if (this.nuevoDocumento) {
+          let subidaArchivo = await this.subirArchivo(
+            documento,
+            this.nuevoDocumento
+          );
+          if (subidaArchivo) {
             Swal.fire({
               icon: "success",
-              title: "Enviado a Filemaker",
-              confirmButtonColor: "#000",
-              text: `Se ha enviado a Filemaker y será insertado en breves`,
-            }).then((result) => {
-                if (result.isConfirmed) {
-                  console.log(response.data);
-            this.$router.push(
-              `${this.$route.path}/${response.data.replace("/", "")}`
-            );
-            this.loading = false;
+              text: "Nuevo documento creado",
+              showConfirmButton: false,
+              timer: 1500,
+            });
             this.getVisita();
-                }
-              });
-            
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        return;
       }
-
+      this.loading = false;
     },
-
+    validacionDocmento(file) {
+      let extensionArchivo = file.name.split(".").pop();
+      return this.extensionesPermitidas.some(function (extensionPermitida) {
+        if (extensionPermitida === extensionArchivo) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    },
+    async subirArchivo(documento, recordId) {
+      let formdata = new FormData();
+      formdata.append("documento", documento);
+      formdata.append("recordId", recordId);
+      try {
+        let respuesta = await this.$axios.$post(
+          `api/images/documento/upload`,
+          formdata,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${this.$cookies.get("TOKEN")}`,
+            },
+          }
+        );
+        if (respuesta) {
+          return true;
+        }
+      } catch (error) {
+        return;
+      }
+    },
     async getVisita() {
       let token = this.$cookies.get("TOKEN");
       try {
-        const visitaid = this.$route.params.id.replace("/", "");
-        this.visita = await this.$axios.$get(`api/visitas/${visitaid}`, {
-          headers: {
-            Authorization: `Bearer ${this.$cookies.get("TOKEN")}`,
-          },
-        });
-        console.log(this.visita);
+        const visitaid = this.$route.params.visita.replace("/", "");
+        this.visita = await this.$axios.$get(
+          `api/visitas/servicio/${visitaid}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         this.visita.visitaFieldata = this.visita[0].fieldData;
-        this.visita.VisitasServicios =
-          this.visita[0].portalData.VisitasServicios;
+        this.visita.VisitasLineas = this.visita[0].portalData.VisitasLineas;
+        this.visita.VisitasFotos = this.visita[0].portalData.VisitasFotosServicios;
 
-        this.visita.VisitasServicios.sort((a, b) => b.recordId - a.recordId);
-        this.visita.VisitasFotos = this.visita[0].portalData.VisitasFotos;
-
-        if (this.loading) {
+        if (this.loading === true) {
           this.loading = false;
         }
         return;
@@ -468,126 +621,123 @@ export default {
         console.log("Error", error);
       }
     },
-
     corregirHoras(Hora) {
       if (Hora == "") return "-";
       let horaFinal = Hora.slice(0, -3);
       return horaFinal;
     },
-
     convertirFecha(fecha) {
       const fechaArray = fecha.split("/");
       const fechaModificada =
         fechaArray[1] + "/" + fechaArray[0] + "/" + fechaArray[2];
       return fechaModificada;
     },
-
-    convertirFechaTexto(fecha, tipo) {
-      if (tipo === "día") {
-        const dia = fecha.split("/");
-        const diaFinal = dia[1];
-        return diaFinal;
-      } else {
-        const mes = fecha.split("/");
-        const meses = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ];
-        let fechaFinal = new Date(
-          `${mes[2]}/${mes[0]}/${mes[1]}`.replace(/-/g, "/")
-        );
-        const nombreMes = meses[fechaFinal.getMonth()];
-        let nombreFinal = nombreMes.substring(0, 3);
-        nombreFinal += ".";
-        return nombreFinal;
-      }
+    checkHistorico() {
+      return this.visita.VisitasLineas.some(
+        (linea) => linea["VisitasLineas::Tipo"] === "M.Obra"
+      );
     },
-    async finishVisita(id) {
-      console.log(id);
-      let userLocation = "";
-      try {
-        userLocation = await this.getUserLocation();
-        console.log('ubicacion actual: ', userLocation);
+    checkMateriales() {
+      return this.visita.VisitasLineas.some(
+        (linea) => linea["VisitasLineas::Tipo"] === ""
+      );
+    },
+    historicoLength() {
+      const count = this.visita.VisitasLineas.filter((linea) => {
+        return linea["VisitasLineas::Tipo"] === "M.Obra" ? true : false;
+      }).length;
+      return count;
+    },
+    materialesLength() {
+      const count = this.visita.VisitasLineas.filter((linea) => {
+        return linea["VisitasLineas::Tipo"] === "" ? true : false;
+      }).length;
+      return count;
+    },
+    editarHistorico(historial) {
+      console.log(historial);
+      if (historial) {
+        this.historialAEditar = historial;
+        this.historialAEditar.recordId = historial.recordId;
+        this.tecnicos = [{ value: this.historialAEditar['VisitasLineas::Tec'], text: this.historialAEditar['VisitasLineas::TecNom'] }];
+        this.$bvModal.show('modal-editar-historico'); // Abre el modal
+      }
+
+    },
+    resetModal() {
+      // Restablece la línea editable cuando el modal se cierra
+      this.historialAEditar = {
+        'VisitasLineas::Fecha': '',
+        'VisitasLineas::Tec': '',
+        'VisitasLineas::TecNom': '',
+        'VisitasLineas::HoraInicioReal': '',
+        'VisitasLineas::HoraFinReal': '',
+        'VisitasLineas::DescripciónArt': '',
+        'recordId': ''
+        // Asegúrate de incluir todas las propiedades que necesites
+      };
+    },
+    handleEdit() {
+
+      if (!this.historialAEditar) {
         Swal.fire({
-          title: "Finalizar visita",
-          text: "¿Quieres finalizar esta visita?",
-          icon: "question",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Finalizar",
-        }).then((result) => {
-          if (result.isConfirmed) {
-
-            let data = {
-              tec: this.$store.state.User,
-              horaActual: this.obtenerHoraActual(),
-              UserLocation: userLocation,
-              fecha: this.getTodayDate(),
-            }
-
-            // Enviamos al fm
-            this.$axios
-              .$patch(
-                "/api/visitas/close/" + id,
-                {
-                  data,
-                  headers: {
-                    Authorization: `Bearer ${this.$cookies.get("TOKEN")}`,
-                  },
-                }
-              )
-              .then((response) => {
-                Swal.fire({
-                  icon: "success",
-                  title: "Enviado a Filemaker",
-                  confirmButtonColor: "#000",
-                  text: `Tarea finalizada`,
-                }).then((response) => {
-                  this.$router.go(this.$router.currentRoute)
-                })
-
-              })
-              .catch((error) => {
-                Swal.fire({
-                  icon: "error",
-                  title: "Se ha producido un error",
-                  text: "Por favor, intentelo de nuevo",
-                  confirmButtonText: "Entendido",
-                  confirmButtonColor: "#cf112b",
-                });
-              });
-          }
+          icon: "error",
+          title: "Oops...",
+          confirmButtonColor: "#000",
+          text: `No se a podido actualizar la solicitud. `,
         });
-        // Resto del código ...
+      }
+
+      let data = {
+        DescripciónArt: this.historialAEditar['VisitasLineas::DescripciónArt'],
+        HoraInicioReal: this.historialAEditar['VisitasLineas::HoraInicioReal'],
+        HoraFinReal: this.historialAEditar['VisitasLineas::HoraFinReal'],
+
+      };
+      console.log(data);
+      try {
+        let response = this.$axios.$patch(
+          `/api/visitas/edit/${this.historialAEditar.recordId}`, data,
+          {
+            headers: {
+              Authorization: `Bearer ${this.$cookies.get("TOKEN")}`,
+            },
+          }
+        );
+        if (response) {
+          Swal.fire({
+            icon: "success",
+            title: "Enviado a Filemaker",
+            confirmButtonColor: "#000",
+            text: `Se ha enviado a Filemaker y será actualizado en breves`,
+          });
+          window.location.href = window.location.href
+        }
       } catch (e) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          confirmButtonColor: "#000",
+          text: `No se ha podido actualizar la solicitud. `,
+        });
         this.error = true;
         console.log(e);
-        window.location.href = window.location.href
       }
 
     }
   },
-
   async mounted() {
+    if (this.$cookies.get("TOKEN") === "") this.$router.push("/login");
+    if (!this.$cookies.get("TOKEN")) this.$router.push("/login");
 
     await this.getVisita();
     this.loading = false;
   },
+  components: { FormMateriales, Form },
 };
 </script>
 
-<style>
+<style scoped>
 .archivo-datos {
   display: flex;
   align-items: center;
@@ -596,25 +746,38 @@ export default {
   gap: 0.6rem;
 }
 
-.num-visita {
-  font-size: 17px;
-}
-
 .tarea-info {
   background-color: var(--color);
   max-width: 100%;
   border-bottom: 1px solid rgb(218, 218, 218);
   border-radius: 4px;
-  padding-top: 5px;
 }
 
 .tarea-info>div {
   margin-top: 18px !important;
 }
 
+.realizado {
+  background-color: var(--color);
+  max-width: 100%;
+  border-bottom: 1px solid rgb(218, 218, 218);
+  border-radius: 4px;
+  padding: 10px 20px 10px 20px;
+}
+
+.realizado-titulo {
+  display: inline-block;
+  margin-top: 5px;
+  font-size: 15px;
+}
+
+.realizado-texto {
+  margin: 5px 0 10px 0 !important;
+}
+
 .nombre-empresa {
   display: inline-block;
-  font-size: 20px;
+  margin-top: 10px;
 }
 
 .opciones-pestañas {
@@ -622,7 +785,7 @@ export default {
   grid-template-columns: repeat(4, 1fr);
   font-weight: bolder;
   max-width: 400px;
-  margin-left: 6px;
+  margin-left: auto;
 }
 
 .opciones-pestañas>* {
@@ -645,11 +808,12 @@ export default {
 
 .div-pestaña {
   background-color: var(--color);
+  min-width: 100%;
 }
 
 @media (min-height: 600px) and (max-height: 720px) {
   .div-pestaña {
-    height: 100%;
+    height: 400px;
   }
 }
 
@@ -708,6 +872,7 @@ export default {
   background-color: var(--color);
   margin-left: 6px;
   margin-right: 0px;
+  width: 100%;
 }
 
 .historico,
@@ -717,8 +882,12 @@ export default {
 
 .historico {
   min-height: 80px;
-  width: 100%;
+  min-width: 100%;
   align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
 }
 
 .historico>div {
@@ -728,23 +897,40 @@ export default {
 }
 
 .historico-texto {
-  margin-right: 0.6rem;
+  margin-right: 10px;
   overflow: hidden;
-  margin: 0;
+  font-size: 14px;
+  min-width: 65vw;
+  max-width: 75vw;
+  padding-right: 15px;
+  padding-left: 20px;
+}
+
+.historico-info {
+  overflow: hidden;
   font-size: 14px;
 }
 
-.historicoCalendario {
-  max-width: 10vw;
+.historico-tecnico {
+  font-size: 16px;
+  margin: 0 0 0 0 !important;
 }
 
-.historicoTexto {
-  max-width: 60vw;
-}
 
-.historicoBoton {
-  max-width: 15vw;
+.historico-tiempo {
+  max-width: 30vw;
+  padding: 0 !important;
   margin: 0 !important;
+}
+
+.historico-hora {
+  font-size: 15px;
+  margin: 0 0 0 0 !important;
+  font-weight: bold;
+}
+
+.historico-fecha {
+  font-size: 12px;
 }
 
 .icono-archivo {
@@ -832,12 +1018,11 @@ export default {
   align-items: center;
   justify-content: flex-end;
   margin-right: 10px;
-  position: fixed;
+  position: sticky;
   bottom: 0;
   padding-left: 40px;
   padding-bottom: 42px;
   font-size: 20px;
-  right: 0;
 }
 
 .añadir a,
@@ -879,5 +1064,9 @@ export default {
   color: white;
   padding: 0.4rem;
   border-radius: 0.2rem;
+}
+
+.historico-editar {
+  margin-left: auto;
 }
 </style>

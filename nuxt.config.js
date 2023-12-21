@@ -14,7 +14,7 @@ export default {
    //target: "server",
    
   head: {
-    title: 'Proyecto 2023',
+    title: 'Solintek',
     htmlAttrs: {
       lang: 'es'
     },
@@ -89,10 +89,10 @@ export default {
     }
   },
   env: {
-    base_url: process.env.MODE == 'desarrollo' ? 'http://192.168.200.125:3000/' : 'https://proyecto2023.aplicacionesinteligentes.es/',
+    base_url: process.env.MODE == 'desarrollo' ? 'http://192.168.200.125:3000/' : 'https://solintek.aplicacionesinteligentes.es/',
   },
   axios: {
-    baseURL: process.env.MODE == 'desarrollo' ? 'http://192.168.200.125:3000/' : 'https://proyecto2023.aplicacionesinteligentes.es/',
+    baseURL: process.env.MODE == 'desarrollo' ? 'http://192.168.200.125:3000/' : 'https://solintek.aplicacionesinteligentes.es/',
     proxy: true
   },
   server: {
@@ -101,11 +101,11 @@ export default {
   },
   pwa: {
     meta: {
-      title: 'Proyecto 2023',
+      title: 'Solintek',
       author: 'Sistemas y Redes',
     },
     manifest: {
-      name: 'Proyecto 2023',
+      name: 'Solintek',
       short_name: 'SYR',
       lang: 'es',
     },
