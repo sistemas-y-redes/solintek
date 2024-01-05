@@ -5,6 +5,7 @@ const https = require("https");
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 const serverName = process.env.FM_SERVER;
+const database = process.env.FM_DATABASE;
 
 visitasModel.fmtoken = "";
 visitasModel.usuario = "";
@@ -89,7 +90,7 @@ visitasModel.findVisitas = async (req) => {
 
   try {
     let respuesta = await axios.post(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/VisitasAPI/_find`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasAPI/_find`,
       query,
       {
         httpsAgent: httpsAgent,
@@ -120,7 +121,7 @@ visitasModel.newVisita = async (sat) => {
   };
 
   let respuesta = await axios.post(
-    `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/VisitasServiciosAPI/records/`,
+    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasServiciosAPI/records/`,
     data,
     {
       httpsAgent: httpsAgent,
@@ -152,7 +153,7 @@ visitasModel.newVisita = async (sat) => {
   };
 
   let respuestaUbi = await axios.post(
-    `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/UbicaciónApi/records`,
+    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/UbicaciónApi/records`,
     dataUbicacion,
     {
       httpsAgent: httpsAgent,
@@ -185,7 +186,7 @@ visitasModel.getVisitaServicio = async (id) => {
 
   try {
     const list = await axios.post(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/VisitasServiciosAPI/_find`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasServiciosAPI/_find`,
       query,
       {
         httpsAgent: httpsAgent,
@@ -208,7 +209,7 @@ visitasModel.getVisitaServicio = async (id) => {
 visitasModel.getVisitaServicioByRecordId = async (id) => {
   try {
     const list = await axios.get(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/VisitasServiciosAPI/records/${id}`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasServiciosAPI/records/${id}`,
       {
         httpsAgent: httpsAgent,
         headers: {
@@ -241,7 +242,7 @@ visitasModel.getVisita = async (id) => {
 
   try {
     const list = await axios.post(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/VisitasAPI/_find`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasAPI/_find`,
       query,
       {
         httpsAgent: httpsAgent,
@@ -271,7 +272,7 @@ visitasModel.crearRegistroDocumento = async (req) => {
   };
   try {
     let respuesta = await axios.post(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/DocumentosVisitasAPI/records/`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/DocumentosVisitasAPI/records/`,
       query,
       {
         httpsAgent: httpsAgent,
@@ -298,7 +299,7 @@ visitasModel.borrarDocumento = async (idVisita, id) => {
 
   try {
     let respuesta = await axios.delete(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/DocumentosVisitasAPI/records/${record}/`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/DocumentosVisitasAPI/records/${record}/`,
       {
         httpsAgent: httpsAgent,
         headers: {
@@ -357,7 +358,7 @@ visitasModel.insertarSeguimiento = async (formulario) => {
 
   try {
     let respuesta = await axios.post(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/SeguimientoVisitasAPI/records`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SeguimientoVisitasAPI/records`,
       query,
       {
         httpsAgent: httpsAgent,
@@ -391,7 +392,7 @@ visitasModel.insertarMaterial = async (formulario) => {
 
   try {
     let respuesta = await axios.post(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/SeguimientoVisitasAPI/records`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SeguimientoVisitasAPI/records`,
       query,
       {
         httpsAgent: httpsAgent,
@@ -424,7 +425,7 @@ visitasModel.updateVisita = async (id,body) => {
   }
 
   const update = await axios.patch(
-    `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/VisitasServiciosAPI/records/${id}`,
+    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasServiciosAPI/records/${id}`,
     data,
     {
       httpsAgent: httpsAgent,
@@ -450,7 +451,7 @@ visitasModel.updateVisita = async (id,body) => {
   };
 
   let respuestaUbi = await axios.post(
-    `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/UbicaciónApi/records`,
+    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/UbicaciónApi/records`,
     dataUbicacion,
     {
       httpsAgent: httpsAgent,
@@ -483,7 +484,7 @@ visitasModel.updatevisitas = async (id, req) => {
   try {
     
       let respuesta = await axios.patch(
-          `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/SeguimientoVisitasAPI/records/${id}`,
+          `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SeguimientoVisitasAPI/records/${id}`,
           data,
           {
               httpsAgent: httpsAgent,

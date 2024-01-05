@@ -67,6 +67,8 @@ auth.renewFilemakerToken = async ({ usuario, password }) => {
 auth.validateAccess = async (req, res, next) => {
   const authHeader = !req.body.headers ? req.headers.authorization : req.body.headers["Authorization"]
   const token = authHeader && authHeader.split(" ")[1];
+  console.log("validate access");
+  console.log(token);
 
   if (token == null) {
     res.writeHead(401);

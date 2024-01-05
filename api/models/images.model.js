@@ -6,6 +6,7 @@
 
  const imagesModel = {}
  const serverName = process.env.FM_SERVER;
+ const database = process.env.FM_DATABASE;
  // Importamos los módulos necesarios para el funcionamiento del modelo
  const axios = require("axios");
  const https = require("https");
@@ -23,7 +24,7 @@
     let formdata = new FormData();
     formdata.append("upload", documento)
     try {
-        let respuesta = await axios.post(`https://${serverName}/fmi/data/v1/databases/Acceso/layouts/DocumentosVisitasAPI/records/${recordId}/containers/Foto/1`,
+        let respuesta = await axios.post(`https://${serverName}/fmi/data/v1/databases/${database}/layouts/DocumentosVisitasAPI/records/${recordId}/containers/Foto/1`,
         formdata,
         {
             httpsAgent: httpsAgent,

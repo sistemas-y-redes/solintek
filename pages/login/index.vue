@@ -60,7 +60,7 @@ export default {
           this.login = false;
         };
 
-        const response = await this.$axios.$post('/api/usuarios/login', credenciales)
+        const response = await this.$axios.$post('/api/usuarios/login', credenciales);
         
         if (response) {
           this.login = false;

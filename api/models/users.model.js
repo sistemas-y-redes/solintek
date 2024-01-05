@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const https = require("https");
 const serverName = process.env.FM_SERVER;
+const database = process.env.FM_DATABASE;
 const visitasModel = require('../models/visitas.model.js')
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
@@ -10,7 +11,7 @@ usersModel.fmtoken = "";
 
 usersModel.doLogin = async ({ usuario, password }) => {
   try {
-    let respuesta = await axios.post(`https://${serverName}/fmi/data/v1/databases/Acceso/sessions`, {},
+    let respuesta = await axios.post(`https://${serverName}/fmi/data/v1/databases/${database}/sessions`, {},
       {
         auth: { username: usuario, password: password },
         httpsAgent: httpsAgent,
@@ -27,13 +28,13 @@ usersModel.doLogin = async ({ usuario, password }) => {
       const queryBody = {
         "query": [
           {
-            "CódigoFM": usuario
+            "NombreFM": usuario
           }
         ]
       };
 
 
-      const userdata = await axios.post(`https://${serverName}/fmi/data/v1/databases/Acceso/layouts/PersonalAPI/_find`,
+      const userdata = await axios.post(`https://${serverName}/fmi/data/v1/databases/${database}/layouts/PersonalAPI/_find`,
         queryBody,
         {
           httpsAgent: httpsAgent,
@@ -71,7 +72,7 @@ usersModel.doLogin = async ({ usuario, password }) => {
 
 usersModel.getAllUsers = async () => {
   try {
-    let respuesta = await axios.get(`https://${serverName}/fmi/data/v1/databases/Acceso/layouts/PersonalAPI/records`,
+    let respuesta = await axios.get(`https://${serverName}/fmi/data/v1/databases/${database}/layouts/PersonalAPI/records`,
       {
         httpsAgent: httpsAgent,
         headers: {
@@ -90,7 +91,7 @@ usersModel.getAllUsers = async () => {
 
 usersModel.doLogout = async token => {
   try {
-    let respuesta = await axios.delete(`https://${serverName}/fmi/data/v1/databases/Acceso/sessions/${token}`, {},
+    let respuesta = await axios.delete(`https://${serverName}/fmi/data/v1/databases/${database}/sessions/${token}`, {},
       {
         httpsAgent: httpsAgent,
         headers: { 'Content-Type': 'application/json', },

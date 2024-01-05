@@ -6,6 +6,7 @@ const https = require("https");
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 const serverName = process.env.FM_SERVER;
+const database = process.env.FM_DATABASE;
 
 vacacionesModel.fmtoken = "";
 vacacionesModel.usuario = "";
@@ -69,7 +70,7 @@ vacacionesModel.findvacaciones = async (req) => {
 
     try {
         let respuesta = await axios.post(
-            `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/SolicitudVacacionesApi/_find`,
+            `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SolicitudVacacionesApi/_find`,
             query,
             {
                 httpsAgent: httpsAgent,
@@ -135,7 +136,7 @@ vacacionesModel.newVacaciones = async (req) => {
         }
 
         let respuesta = await axios.post(
-            `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/SolicitudVacacionesApi/records`,
+            `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SolicitudVacacionesApi/records`,
             data,
             {
                 httpsAgent: httpsAgent,
@@ -172,7 +173,7 @@ vacacionesModel.getvacacionesByCuentaFM = async (id) => {
     };
     try {
         const vacaciones = await axios.post(
-            `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/SolicitudVacacionesApi/_find`, query,
+            `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SolicitudVacacionesApi/_find`, query,
             {
                 httpsAgent: httpsAgent,
                 headers: {
@@ -232,7 +233,7 @@ vacacionesModel.updatevacaciones = async (id, req) => {
         }
 
         let respuesta = await axios.patch(
-            `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/SolicitudVacacionesApi/records/${id}`,
+            `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SolicitudVacacionesApi/records/${id}`,
             data,
             {
                 httpsAgent: httpsAgent,

@@ -5,6 +5,7 @@ const https = require("https");
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 const serverName = process.env.FM_SERVER;
+const database = process.env.FM_DATABASE;
 
 fichajeModel.fmtoken = "";
 fichajeModel.usuario = "";
@@ -25,7 +26,7 @@ fichajeModel.findFichaje = async (req) => {
   console.log(query)
   try {
     let respuesta = await axios.post(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/InformesApi/_find`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/InformesApi/_find`,
       query,
       {
         httpsAgent: httpsAgent,
@@ -62,7 +63,7 @@ fichajeModel.newFichaje = async (req) => {
   };
 
   let respuesta = await axios.post(
-    `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/InformesApi/records`,
+    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/InformesApi/records`,
     data,
     {
       httpsAgent: httpsAgent,
@@ -94,7 +95,7 @@ fichajeModel.newFichaje = async (req) => {
   };
 
   let respuestaUbi = await axios.post(
-    `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/UbicaciónApi/records`,
+    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/UbicaciónApi/records`,
     dataUbicacion,
     {
       httpsAgent: httpsAgent,
@@ -123,7 +124,7 @@ fichajeModel.newFichaje = async (req) => {
 fichajeModel.getFichajeByRecordId = async (id) => {
   try {
     const fichaje = await axios.get(
-      `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/InformesApi/records/${id}`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/InformesApi/records/${id}`,
       {
         httpsAgent: httpsAgent,
         headers: {
@@ -152,7 +153,7 @@ fichajeModel.updateFichaje = async (id, req) => {
   }
 
   const update = await axios.patch(
-    `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/InformesApi/records/${id}`,
+    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/InformesApi/records/${id}`,
     data,
     {
       httpsAgent: httpsAgent,
@@ -178,7 +179,7 @@ fichajeModel.updateFichaje = async (id, req) => {
   };
 
   let respuestaUbi = await axios.post(
-    `https://${serverName}/fmi/data/v1/databases/Acceso/layouts/UbicaciónApi/records`,
+    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/UbicaciónApi/records`,
     dataUbicacion,
     {
       httpsAgent: httpsAgent,
