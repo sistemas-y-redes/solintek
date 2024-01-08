@@ -123,9 +123,6 @@ export default {
     };
   },
   methods: {
-    prueba(){
-console.log(this.visita[0].fieldData.NumeroServicio);
-    },
     async handleSubmit() {
       let errorMostrar = "";
 
@@ -150,8 +147,6 @@ console.log(this.visita[0].fieldData.NumeroServicio);
       }
 
       const formulario = { ...this.form };
-      console.log("prueba");
-      console.log(formulario);
       this.loading = true;
       this.$store.commit("insertHora", formulario);
 
@@ -190,7 +185,6 @@ console.log(this.visita[0].fieldData.NumeroServicio);
       }).then(() => {
         let rutaVariable = this.visita[0].fieldData.NumeroServicio;
         rutaVariable = rutaVariable.replace(/\//g, '');
-        console.log(rutaVariable);
         this.$router.go(-1);
         //window.location.href = window.location.href
       });
@@ -221,7 +215,6 @@ console.log(this.visita[0].fieldData.NumeroServicio);
     // Aqui se le asigna por defecto como tecnico el tecnico que se a logeado
     this.tecnicoSeleccionado = this.$store.state.User;
     this.form.HoraInicio = this.getCurrentTime();
-    this.prueba();
 
     // Obtener técnicos
     /*this.$axios.$get("/api/usuarios/list", {
@@ -234,7 +227,6 @@ console.log(this.visita[0].fieldData.NumeroServicio);
       console.log(error)
     })*/
 
-    console.log(this.tecnicos)
   },
 };
 </script>

@@ -175,7 +175,6 @@ export default {
           },
         });
         this.visitas = response;
-console.log(this.visitas);
       } catch (e) {
         this.error = true;
         console.log(e);

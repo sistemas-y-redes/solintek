@@ -605,10 +605,7 @@ export default {
         },
         async getVisita() {
             try {
-                console.log(this.$route.params)
                 const visitaid = this.$route.params.id.replace("/", "");
-                console.log("VISTA si")
-                console.log(visitaid);
                 this.visita = await this.$axios.$get(
                     `api/visitas/servicio/${visitaid}`,
                     {
@@ -617,12 +614,9 @@ export default {
                         },
                     }
                 );
-                console.log("hola?");
-                console.log(this.visita);
                 this.visita.visitaFieldata = this.visita[0].fieldData;
                 this.visita.VisitasLineas = this.visita[0].portalData.VisitasLineas;
                 this.visita.VisitasFotos = this.visita[0].portalData.VisitasFotos;
-                console.log(this.visita);
 
                 if (this.loading === true) {
                     this.loading = false;
@@ -643,7 +637,6 @@ export default {
                 // Manejo de casos en los que 'fecha' no está definida o no es una cadena
                 return 'Fecha no disponible';
             }
-            console.log(fecha);
             const fechaArray = fecha.split("/");
             const fechaModificada =
                 fechaArray[1] + "/" + fechaArray[0] + "/" + fechaArray[2];
@@ -672,7 +665,6 @@ export default {
             return count;
         },
         editarHistorico(historial) {
-            console.log(historial);
             if (historial) {
                 this.historialAEditar = historial;
                 this.historialAEditar.recordId = historial.recordId;
@@ -711,7 +703,6 @@ export default {
                 HoraFinReal: this.historialAEditar['VisitasLineas::HoraFinReal'],
 
             };
-            console.log(data);
             try {
                 let response = this.$axios.$patch(
                     `/api/visitas/edit/${this.historialAEditar.recordId}`, data,

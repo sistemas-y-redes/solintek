@@ -111,10 +111,7 @@ visitasModel.newVisita = async (sat) => {
 };
 
 visitasModel.getVisitaServicio = async (id) => {
-  console.log("MODELO get servicio con vista id")
-  console.log(id);
   let idSlug = id.substring(0, 1) + "/" + id.substring(1);
-  console.log(idSlug);
   const query = {
     query: [{ NumeroServicio: idSlug }],
     sort: [
@@ -140,7 +137,6 @@ visitasModel.getVisitaServicio = async (id) => {
     );
 
     const properList = list.data.response.data;
-    console.log("PROPERLIST:" + JSON.stringify(properList))
     return properList;
   } catch (err) {
     console.log(err);
@@ -196,7 +192,6 @@ visitasModel.getVisita = async (id) => {
     );
 
     const properList = list.data.response.data;
-    console.log("properList", properList);
     return properList;
   } catch (err) {
     console.log(err);
@@ -259,8 +254,6 @@ visitasModel.borrarDocumento = async (idVisita, id) => {
 };
 
 visitasModel.insertarSeguimiento = async (formulario) => {
-  console.log('estoy en el modelo');
-    console.log(formulario);
   if (formulario.linFecha.length === 0) return false;
   if (formulario.HoraInicio.length === 0) return false;
   // if (formulario.HoraFin.length === 0) return false;
@@ -295,8 +288,6 @@ visitasModel.insertarSeguimiento = async (formulario) => {
       Tipo: formulario.Tipo,
     },
   };
-  console.log(query);
-
   try {
     let respuesta = await axios.post(
       `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SeguimientoVisitasAPI/records`,
@@ -330,7 +321,6 @@ visitasModel.insertarMaterial = async (formulario) => {
     },
   };
 
-  console.log(query);
 
   try {
     let respuesta = await axios.post(
@@ -422,7 +412,6 @@ visitasModel.updatevisitas = async (id, req) => {
         "HoraInicioReal": req.HoraInicioReal,
       }
   };
-  console.log(data);
   try {
     
       let respuesta = await axios.patch(
@@ -436,7 +425,6 @@ visitasModel.updatevisitas = async (id, req) => {
               },
           }
       );
-      console.log(respuesta);
 
       return respuesta.data.response.modId;
   } catch (err) {
