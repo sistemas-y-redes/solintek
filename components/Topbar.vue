@@ -62,14 +62,14 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  max-width: 425px;
+  max-width: 100% !important;
 }
 .Topbar > * {
   margin: 2rem;
 }
 .logoImg{
   width: 40%;
-  margin-left: 1rem !important;
+  margin-left: 0.2rem !important;
 }
 
 
@@ -79,7 +79,8 @@ export default {
   align-items: center;
   grid-gap: 1.3rem;
   gap: 1.2rem;
-  justify-content: flex-end;
+  justify-content: space-evenly;
+  max-width: 100% !important;
 }
 .icono-rojo {
   width: 24px;
