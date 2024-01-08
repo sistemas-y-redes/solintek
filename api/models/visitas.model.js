@@ -11,72 +11,10 @@ visitasModel.fmtoken = "";
 visitasModel.usuario = "";
 
 visitasModel.findVisitas = async (req) => {
-  console.log("req", req);
   const query = {
     query: [
       {
-        Tec: req.user,
         EstadoServicio: "PENDIENTE",
-      },
-      {
-        Tec: req.user,
-        EstadoServicio: "EMPEZADO",
-      },
-      {
-        Tec2: req.user,
-        EstadoServicio: "PENDIENTE",
-      },
-      {
-        Tec2: req.user,
-        EstadoServicio: "EMPEZADO",
-      },
-      {
-        Tec3: req.user,
-        EstadoServicio: "PENDIENTE",
-      },
-      {
-        Tec3: req.user,
-        EstadoServicio: "EMPEZADO",
-      },
-      {
-        Tec4: req.user,
-        EstadoServicio: "PENDIENTE",
-      },
-      {
-        Tec4: req.user,
-        EstadoServicio: "EMPEZADO",
-      },
-      {
-        Tec5: req.user,
-        EstadoServicio: "PENDIENTE",
-      },
-      {
-        Tec5: req.user,
-        EstadoServicio: "EMPEZADO",
-      },
-      {
-        Tec6: req.user,
-        EstadoServicio: "PENDIENTE",
-      },
-      {
-        Tec6: req.user,
-        EstadoServicio: "EMPEZADO",
-      },
-      {
-        Tec7: req.user,
-        EstadoServicio: "PENDIENTE",
-      },
-      {
-        Tec7: req.user,
-        EstadoServicio: "EMPEZADO",
-      },
-      {
-        Tec8: req.user,
-        EstadoServicio: "PENDIENTE",
-      },
-      {
-        Tec8: req.user,
-        EstadoServicio: "EMPEZADO",
       },
     ],
     sort: [
@@ -173,11 +111,15 @@ visitasModel.newVisita = async (sat) => {
 };
 
 visitasModel.getVisitaServicio = async (id) => {
+  console.log("MODELO get servicio con vista id")
+  console.log(id);
+  let idSlug = id.substring(0, 1) + "/" + id.substring(1);
+  console.log(idSlug);
   const query = {
-    query: [{ NumeroServicio: id }],
+    query: [{ NumeroServicio: idSlug }],
     sort: [
       {
-        fieldName: "Fecha",
+        fieldName: "fecha",
         sortOrder: "descend",
       },
     ],
@@ -186,7 +128,7 @@ visitasModel.getVisitaServicio = async (id) => {
 
   try {
     const list = await axios.post(
-      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasServiciosAPI/_find`,
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasAPI/_find`,
       query,
       {
         httpsAgent: httpsAgent,
@@ -267,7 +209,6 @@ visitasModel.crearRegistroDocumento = async (req) => {
   const query = {
     fieldData: {
       IdVisita: IdVisita,
-      NumeroVisitaServicio: NumeroVisitaServicio,
     },
   };
   try {
@@ -318,10 +259,12 @@ visitasModel.borrarDocumento = async (idVisita, id) => {
 };
 
 visitasModel.insertarSeguimiento = async (formulario) => {
-  if (formulario.Fecha.length === 0) return false;
+  console.log('estoy en el modelo');
+    console.log(formulario);
+  if (formulario.linFecha.length === 0) return false;
   if (formulario.HoraInicio.length === 0) return false;
   // if (formulario.HoraFin.length === 0) return false;
-  if (formulario.Descripcion.length === 0) return false;
+  if (formulario.DescripciónArt.length === 0) return false;
 
   const horaInicial = formulario.HoraInicio.split(":");
   const horaFinal = formulario.HoraFin.split(":");
@@ -335,7 +278,7 @@ visitasModel.insertarSeguimiento = async (formulario) => {
   if (segundosHoraInicial > segundosHoraFinal) return false;
   if (segundosHoraInicial === segundosHoraFinal) return false;
 
-  const fechaPartida = formulario.Fecha.split("/");
+  const fechaPartida = formulario.linFecha.split("/");
   let fechaArray = fechaPartida[0];
   fechaArray = fechaArray.split("-");
   const fechaModificada =
@@ -343,18 +286,16 @@ visitasModel.insertarSeguimiento = async (formulario) => {
 
   const query = {
     fieldData: {
-      Fecha: fechaModificada,
+      linFecha: fechaModificada,
       HoraInicioReal: formulario.HoraInicio,
       HoraFinReal: formulario.HoraFin,
-      NumeroServicioVisita: formulario.NumeroServicio,
-      NumeroServicio: formulario.NumeroServicioVisita,
+      DescripciónArt : formulario.DescripciónArt,
+      NumeroServicio: formulario.NumeroServicio,
       Tec: formulario.Tec,
       Tipo: formulario.Tipo,
-      Referencia: formulario.referencia,
-      "VisitasServicios::TrabajoRealizado": formulario.Descripcion,
-      'DescripciónArt' : formulario.Descripcion,
     },
   };
+  console.log(query);
 
   try {
     let respuesta = await axios.post(
@@ -381,14 +322,15 @@ visitasModel.insertarMaterial = async (formulario) => {
 
   const query = {
     fieldData: {
-      NumeroServicioVisita: formulario.NumeroServicio,
-      NumeroServicio: formulario.NumeroServicioVisita,
+      NumeroServicio: formulario.NumeroServicio,
       Tec: formulario.Tec,
       DescripciónArt: formulario.Descripcion,
       Tipo: formulario.Tipo,
-      Unidades: formulario.Unidades,
+      linunidades: formulario.Unidades,
     },
   };
+
+  console.log(query);
 
   try {
     let respuesta = await axios.post(

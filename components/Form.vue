@@ -8,13 +8,13 @@
           >Fecha <span>Debes introducir una fecha válida</span></label
         >
         <b-form-datepicker
-          v-model="form.Fecha"
+          v-model="form.linFecha"
           :value="min"
           :min="min"
           class="form-input"
           type="text"
           name="fecha"
-          :placeholder="form.Fecha"
+          :placeholder="form.linFecha"
           disabled
         />
       </b-row>
@@ -60,11 +60,11 @@
           <span>Debes introducir una descripción válida</span></label
         >
         <b-form-textarea
-          v-model="form.Descripcion"
+          v-model="form.DescripciónArt"
           class="textarea"
           placeholder="Introduce la acción realizada"
           :state="
-            form.Descripcion.length >= 10 && form.Descripcion.length <= 50
+            form.DescripciónArt.length >= 10 && form.DescripciónArt.length <= 50
           "
           required
         ></b-form-textarea>
@@ -103,12 +103,11 @@ export default {
     return {
       tecnicos: [],
       form: {
-        Fecha: new Date().toISOString().slice(0, 10),
+        linFecha: new Date().toISOString().slice(0, 10),
         HoraInicio: "",
         HoraFin: "",
-        Descripcion: this.visita[0].fieldData.TrabajoRealizado,
-        NumeroServicioVisita: this.visita[0].fieldData["NumeroVisita"],
-        NumeroServicio: this.visita[0].fieldData["NumeroServicio"],
+        DescripciónArt: this.visita[0].fieldData.TareaInicial,
+        NumeroServicio: this.visita[0].fieldData.NumeroServicio,
         Tec: this.$store.state.User,
         Tipo: "M.Obra",
       },
@@ -124,10 +123,13 @@ export default {
     };
   },
   methods: {
+    prueba(){
+console.log(this.visita[0].fieldData.NumeroServicio);
+    },
     async handleSubmit() {
       let errorMostrar = "";
 
-      if (this.form.Fecha.length === 0) {
+      if (this.form.linFecha.length === 0) {
         errorMostrar = "comprueba la fecha";
         throw errorMostrar;
       }
@@ -142,12 +144,14 @@ export default {
       //   throw errorMostrar;
       // }
 
-      if (this.form.Descripcion.length === 0) {
+      if (this.form.DescripciónArt.length === 0) {
         errorMostrar = "comprueba la descripción";
         throw errorMostrar;
       }
 
       const formulario = { ...this.form };
+      console.log("prueba");
+      console.log(formulario);
       this.loading = true;
       this.$store.commit("insertHora", formulario);
 
@@ -184,13 +188,17 @@ export default {
         confirmButtonColor: "#000",
         text: `Se ha enviado a Filemaker y será insertado en breves`,
       }).then(() => {
-        window.location.href = window.location.href
+        let rutaVariable = this.visita[0].fieldData.NumeroServicio;
+        rutaVariable = rutaVariable.replace(/\//g, '');
+        console.log(rutaVariable);
+        this.$router.go(-1);
+        //window.location.href = window.location.href
       });
 
-      this.form.Fecha = "";
+      this.form.linFecha = "";
       this.form.HoraInicio = "";
       this.form.HoraFin = "";
-      this.form.Descripcion = "";
+      this.form.DescripciónArt = "";
       this.loading = false;
     },
     getCurrentTime() {
@@ -201,7 +209,7 @@ export default {
     },
   },
   mounted() {
-    this.tecnicos.push({value: this.numeroTecnico, text: this.nombreTecnico})
+    this.tecnicos.push({value: this.numeroTecnico, text: this.numeroTecnico})
     if (this.visita.visitaFieldata["Visitas::Tec2"]) this.tecnicos.push({value: this.visita.visitaFieldata["Visitas::Tec2"], text: this.visita.visitaFieldata["Visitas::TecNom2"]})
     if (this.visita.visitaFieldata["Visitas::Tec3"]) this.tecnicos.push({value: this.visita.visitaFieldata["Visitas::Tec3"], text: this.visita.visitaFieldata["Visitas::TecNom3"]})
     if (this.visita.visitaFieldata["Visitas::Tec4"]) this.tecnicos.push({value: this.visita.visitaFieldata["Visitas::Tec4"], text: this.visita.visitaFieldata["Visitas::TecNom4"]})
@@ -213,6 +221,7 @@ export default {
     // Aqui se le asigna por defecto como tecnico el tecnico que se a logeado
     this.tecnicoSeleccionado = this.$store.state.User;
     this.form.HoraInicio = this.getCurrentTime();
+    this.prueba();
 
     // Obtener técnicos
     /*this.$axios.$get("/api/usuarios/list", {

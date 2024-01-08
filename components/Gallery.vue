@@ -1,9 +1,9 @@
 <template>
     <div class="img-gallery">
         <div class="image-thumb-container" v-for="(image, index) in images" :key="index">
-            <img v-if="image['VisitasFotosServicios::NombreDocumento'].toUpperCase().includes('PDF')" class="img-thumb" @click="openDocument(image)" src="/file.png" alt="file">
-            <img v-else @click="openImage(image)" class="img-thumb" :src="`data:image/png; base64, ${image['VisitasFotosServicios::DocumentoBase64']}`" :alt="image['VisitasFotosServicios::NombreDocumento']">
-            {{image['VisitasFotosServicios::NombreDocumento'].substring(0, 10)}}
+            <img v-if="image['VisitasFotos::NombreDocumento'].toUpperCase().includes('PDF')" class="img-thumb" @click="openDocument(image)" src="/file.png" alt="file">
+            <img v-else @click="openImage(image)" class="img-thumb" :src="`data:image/png; base64, ${image['VisitasFotos::DocumentoBase64']}`" :alt="image['VisitasFotos::NombreDocumento']">
+            {{image['VisitasFotos::NombreDocumento'].substring(0, 10)}}
         </div>
     </div>
 </template>
@@ -16,10 +16,10 @@ export default {
         openImage(image) {
             Swal.fire({
                 title: '',
-                text: image['VisitasFotosServicios::NombreDocumento'],
-                imageUrl: "data:image/png; base64, " + image['VisitasFotosServicios::DocumentoBase64'],
+                text: image['VisitasFotos::NombreDocumento'],
+                imageUrl: "data:image/png; base64, " + image['VisitasFotos::DocumentoBase64'],
                 imageWidth: 400,
-                imageAlt: image['VisitasFotosServicios::NombreDocumento'],
+                imageAlt: image['VisitasFotos::NombreDocumento'],
                 showDenyButton: true,
                 showCloseButton: true,
                 confirmButtonText: 'Ok',
@@ -32,16 +32,16 @@ export default {
         openDocument(doc) {
             Swal.fire({
                 title: 'No se puede previsualizar el archivo',
-                text: doc['VisitasFotosServicios::NombreDocumento'],
+                text: doc['VisitasFotos::NombreDocumento'],
                 imageUrl: "/file.png",
                 imageWidth: 400,
-                imageAlt: doc['VisitasFotosServicios::NombreDocumento'],
+                imageAlt: doc['VisitasFotos::NombreDocumento'],
                 showDenyButton: true,
                 showCloseButton: true,
                 confirmButtonText: 'Descargar',
                 denyButtonText: "Eliminar"
             }).then(result => {
-                if (result.isConfirmed) this.downloadFile(doc['VisitasFotosServicios::DocumentoBase64'])
+                if (result.isConfirmed) this.downloadFile(doc['VisitasFotos::DocumentoBase64'])
                 if (result.isDenied) this.deleteFile(doc.recordId)
             })
         },

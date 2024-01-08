@@ -75,6 +75,8 @@ router.get('/:id', [auth.validateAccess], async (req, res) => {
  * @return {JSON}
  */
 router.get('/servicio/:id/', [auth.validateAccess], async (req, res) => {
+    console.log("CONTROLADOR")
+        console.log(req.params.id);
     const visita = await visitasModel.getVisitaServicio(req.params.id)
     
     // Si no ha devuelto una visita devuelve error
@@ -93,9 +95,7 @@ router.get('/servicio/:id/', [auth.validateAccess], async (req, res) => {
  * @return {JSON}
  */
 router.patch("/edit/:id", [auth.validateAccess], async (req, res) => {
-    console.log('estoy en el controlador');
-    console.log(req.params.id);
-    console.log(req.body);
+    
     const update =  await visitasModel.updatevisitas(req.params.id, req.body);
 
     if (!update) {
@@ -126,6 +126,8 @@ router.patch("/close/:id", [auth.validateAccess], async (req, res) => {
  * @return {JSON}
  */
 router.post('/documento/new', [auth.validateAccess], async (req, res) => {
+    console.log("controlador documento nuevo")
+    console.log(req.body)
     const respuesta = await visitasModel.crearRegistroDocumento(req.body);
     // Si no ha devuelto una visita devuelve error
     if (!respuesta) {
@@ -160,6 +162,8 @@ router.post('/documento',[auth.validateAccess], async (req, res) => {
  * @return {JSON}
  */
 router.post('/:id/seguimiento', [auth.validateAccess], async (req, res) => {
+    console.log('estoy en el controlador');
+    console.log(req.body.formulario);
     var seguimiento
     
     if (req.body.formulario.Tipo === "M.Obra"){

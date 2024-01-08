@@ -72,6 +72,7 @@ export default {
         console.log("Error al hacer la llamada", error)
         this.mostrarErrores = true;
         this.login = false;
+        this.$router.push('/login');
         return
       }
     }

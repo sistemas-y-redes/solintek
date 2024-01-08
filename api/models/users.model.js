@@ -23,7 +23,6 @@ usersModel.doLogin = async ({ usuario, password }) => {
     }
 
     const fmtoken = respuesta.data.response.token;
-    console.log('fmtoken:', fmtoken);  // Depuración: imprime el fmtoken
 
       const queryBody = {
         "query": [
