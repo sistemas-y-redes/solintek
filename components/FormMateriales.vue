@@ -68,7 +68,7 @@ export default {
         Unidades: null,
         NumeroServicioVisita: this.visita[0].fieldData["NumeroVisita"],
         NumeroServicio: this.visita[0].fieldData["NumeroServicio"],
-        Tec: this.$store.state.User,
+        Tec: this.$store.state.User.CódigoFM,
         Tipo: ""
       },
       errorUnidades: false,

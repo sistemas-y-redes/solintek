@@ -45,7 +45,7 @@ router.post('/new', [auth.validateAccess], async (req, res) => {
 
 router.post('/' , [auth.validateAccess], async (req, res) => {
     visitasModel.fmtoken = req.user.fmtoken;
-    const visitas = await visitasModel.findVisitas(req.body)
+    const visitas = await visitasModel.findVisitas();
     res.end(JSON.stringify(visitas));
 })
 

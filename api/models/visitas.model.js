@@ -10,7 +10,7 @@ const database = process.env.FM_DATABASE;
 visitasModel.fmtoken = "";
 visitasModel.usuario = "";
 
-visitasModel.findVisitas = async (req) => {
+visitasModel.findVisitas = async () => {
   const query = {
     query: [
       {

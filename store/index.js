@@ -1,14 +1,20 @@
+
 export const state = () => ({
     User: null,
+    EmpleadoNombre: null,
+    UserInfo: null,
     Horas: []
+    // ... otros estados
 });
 
 export const mutations = {
     saveUser(state, User) {
         state.User = User;
+        localStorage.setItem('User', JSON.stringify(User));
     },
-    saveEmpleado(state, EmpleadoNombre){
-        state.EmpleadoNombre = EmpleadoNombre;
+    saveUserInfo(state, UserInfo) {
+        state.UserInfo = UserInfo;
+        localStorage.setItem('UserInfo', JSON.stringify(UserInfo));
     },
     insertHora(state, Hora) {
         state.Horas.push(Hora);

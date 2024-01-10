@@ -23,13 +23,14 @@
                 <small class="num-visita" style="line-height:1.2">{{ visita.fieldData.Numero }} </small> <b-badge
                   class="ml-2"
                   :variant="visita.fieldData.TipoSat == 'REPARACIÓN' ? 'primary' : visita.fieldData.TipoSat == 'MANTENIMIENTO' ? 'success' : 'danger'">{{
-                    visita.fieldData.TipoSat }}</b-badge>
+                    visita.fieldData.Tipo }}</b-badge>
               </div>
 
               <span class="nombre-cliente">{{ visita.fieldData["Cliente"] }}</span>
 
               <p class="texto-tarea">
                 {{ visita.fieldData["Motivo Avería"] }}
+               
               </p>
             </NuxtLink>
           </div>
@@ -166,10 +167,8 @@ export default {
   },
   methods: {
     async getVisitas() {
-      let tec = this.$store.state.User
       try {
         let response = await this.$axios.$post("/api/visitas/", {
-          user: tec,
           headers: {
             Authorization: `Bearer ${this.$cookies.get("TOKEN")}`,
           },

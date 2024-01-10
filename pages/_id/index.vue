@@ -116,14 +116,16 @@
                         <div class="tarea-info my-1">
                             <!-- Contenido de empresa -->
                             <div class="mx-2 ml-3">
-                                <span class="nombre-empresa">{{
-                                    visita.visitaFieldata["Visitas::Cliente"]
-                                }}</span>
+                                <span class="nombre-empresa"><b>{{
+                                    visita.visitaFieldata.Cliente
+                                }}</b></span>
 
                                 <p class="historico-info mt-2">
-                                    {{ visita.visitaFieldata.NumeroServicio }}
-                                    <b>{{ visita.visitaFieldata["Visitas::Motivo Avería"] }} </b>
+                                    {{ visita.visitaFieldata.Numero }}
                                 </p>
+                                <span class="historico-info mt-2">
+                                    {{ visita.visitaFieldata['Motivo Avería']}}
+                                </span>
                             </div>
                             <!-- Contenido de etiquetas -->
                             <div class="etiquetas mx-3 my-4">
@@ -788,6 +790,7 @@ export default {
 .nombre-empresa {
     display: inline-block;
     margin-top: 10px;
+    font-size: 12px;
 }
 
 .opciones-pestañas {

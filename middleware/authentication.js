@@ -9,8 +9,8 @@ export default async ({ $axios, store, redirect, app, route }) => {
         });
 
         if (res) {
-            store.commit('saveUser', res.data.username);
-            store.commit('saveEmpleado', res.data.empleadoNombre);
+            // store.commit('saveUser', res.data.username);
+            //store.commit('saveEmpleado', res.data.empleadoNombre);
         }
     } catch (error) {
         app.$cookies.set("TOKEN", "");

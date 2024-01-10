@@ -40,7 +40,7 @@ usersModel.doLogin = async ({ usuario, password }) => {
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${fmtoken}` },
         }
       );
-    
+
 
     if (!userdata || !userdata.data || !userdata.data.response || !userdata.data.response.data[0]) {
       throw new Error('Datos de usuario inválidos desde la API de FileMaker.');
@@ -53,7 +53,9 @@ usersModel.doLogin = async ({ usuario, password }) => {
     }
     
     const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "24h" });
-    return token;
+    const response = userdata.data.response.data[0].fieldData;
+    response.token = token;
+    return response;
 
   } catch (error) {
     console.log('Error:', error);

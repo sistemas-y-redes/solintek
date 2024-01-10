@@ -1,22 +1,16 @@
 <template>
   <div class="Topbar">
     <NuxtLink to="/" class="logoImg"><img class="logo" src="/logo.png" /></NuxtLink>
-    
+
     <div class="usuario-options">
       <b-button class="refresh-button" @click="refreshPage()">
-          <b-icon icon="arrow-repeat"></b-icon>
-          <small>{{$config.clientVersion}}</small>
+        <b-icon icon="arrow-repeat"></b-icon>
+        <small>{{ $config.clientVersion }}</small>
       </b-button>
-      <p class="m-0">{{ this.$store.state.User }}</p>
-      <svg
-        @click="logOut()"
-        class="icono-rojo"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 512 512"
-      >
+      <p class="m-0">{{ nombreUsuario }}</p>
+      <svg @click="logOut()" class="icono-rojo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path
-          d="M160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96C43 32 0 75 0 128V384c0 53 43 96 96 96h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H96c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32h64zM504.5 273.4c4.8-4.5 7.5-10.8 7.5-17.4s-2.7-12.9-7.5-17.4l-144-136c-7-6.6-17.2-8.4-26-4.6s-14.5 12.5-14.5 22v72H192c-17.7 0-32 14.3-32 32l0 64c0 17.7 14.3 32 32 32H320v72c0 9.6 5.7 18.2 14.5 22s19 2 26-4.6l144-136z"
-        />
+          d="M160 96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96C43 32 0 75 0 128V384c0 53 43 96 96 96h64c17.7 0 32-14.3 32-32s-14.3-32-32-32H96c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32h64zM504.5 273.4c4.8-4.5 7.5-10.8 7.5-17.4s-2.7-12.9-7.5-17.4l-144-136c-7-6.6-17.2-8.4-26-4.6s-14.5 12.5-14.5 22v72H192c-17.7 0-32 14.3-32 32l0 64c0 17.7 14.3 32 32 32H320v72c0 9.6 5.7 18.2 14.5 22s19 2 26-4.6l144-136z" />
       </svg>
     </div>
   </div>
@@ -26,6 +20,11 @@
 import Swal from "sweetalert2";
 
 export default {
+  computed: {
+    nombreUsuario() {
+      return this.$store.state.User ? this.$store.state.User.NombreFm : 'Usuario no identificado';
+    },
+  },
   methods: {
     logOut() {
       let borrarToken = false;
@@ -34,7 +33,7 @@ export default {
         showDenyButton: true,
         confirmButtonText: "Salir",
         confirmButtonColor: "#000",
-        
+
       }).then((result) => {
         if (result.isConfirmed) {
           this.$axios.post("/api/usuarios/logout", {
@@ -49,7 +48,7 @@ export default {
         }
       });
     },
-    refreshPage: function() {
+    refreshPage: function () {
       window.location.href = window.location.href
     }
   },
@@ -64,10 +63,12 @@ export default {
   justify-content: space-between;
   max-width: 100% !important;
 }
-.Topbar > * {
+
+.Topbar>* {
   margin: 2rem;
 }
-.logoImg{
+
+.logoImg {
   width: 40%;
   margin-left: 0.2rem !important;
 }
@@ -82,19 +83,24 @@ export default {
   justify-content: space-evenly;
   max-width: 100% !important;
 }
+
 .icono-rojo {
   width: 24px;
   height: 24px;
   fill: red;
 }
+
 .logo {
   width: 200px;
 }
-.swal2-title{ font-size: 1.25rem ! important; }
+
+.swal2-title {
+  font-size: 1.25rem ! important;
+}
 
 .refresh-button {
   background-color: transparent;
-  border:none;
+  border: none;
   color: rgb(123, 123, 123);
   display: flex;
   align-items: center;
@@ -104,15 +110,17 @@ export default {
 .refresh-button small {
   padding: 0 4%;
 }
+
 @media (max-width: 375px) {
-  .logo{
-    width:150px;
+  .logo {
+    width: 150px;
   }
-  .logoImg{
+
+  .logoImg {
     width: 30%;
   }
+
   .usuario-options {
-    gap:0.8rem;
+    gap: 0.8rem;
   }
-}
-</style>
+}</style>

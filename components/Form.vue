@@ -108,11 +108,11 @@ export default {
         HoraFin: "",
         DescripciónArt: this.visita[0].fieldData.TareaInicial,
         NumeroServicio: this.visita[0].fieldData.NumeroServicio,
-        Tec: this.$store.state.User,
+        Tec: this.$store.state.User.CódigoFM,
         Tipo: "M.Obra",
       },
-      numeroTecnico: this.$store.state.User,
-      nombreTecnico: this.visita[0].fieldData.TécnicoNombre,
+      numeroTecnico: this.$store.state.User.CódigoFM,
+      nombreTecnico: this.$store.state.User.EmpleadoNombre,
       errorFecha: false,
       errorHoraInicio: false,
       errorHoraFinal: false,
@@ -203,7 +203,8 @@ export default {
     },
   },
   mounted() {
-    this.tecnicos.push({value: this.numeroTecnico, text: this.numeroTecnico})
+    this.tecnicoSeleccionado = this.$store.state.User.CódigoFM;
+    this.tecnicos.push({value: this.tecnicoSeleccionado, text: this.nombreTecnico})
     if (this.visita.visitaFieldata["Visitas::Tec2"]) this.tecnicos.push({value: this.visita.visitaFieldata["Visitas::Tec2"], text: this.visita.visitaFieldata["Visitas::TecNom2"]})
     if (this.visita.visitaFieldata["Visitas::Tec3"]) this.tecnicos.push({value: this.visita.visitaFieldata["Visitas::Tec3"], text: this.visita.visitaFieldata["Visitas::TecNom3"]})
     if (this.visita.visitaFieldata["Visitas::Tec4"]) this.tecnicos.push({value: this.visita.visitaFieldata["Visitas::Tec4"], text: this.visita.visitaFieldata["Visitas::TecNom4"]})
@@ -213,7 +214,7 @@ export default {
     if (this.visita.visitaFieldata["Visitas::Tec8"]) this.tecnicos.push({value: this.visita.visitaFieldata["Visitas::Tec8"], text: this.visita.visitaFieldata["Visitas::TecNom8"]})
 
     // Aqui se le asigna por defecto como tecnico el tecnico que se a logeado
-    this.tecnicoSeleccionado = this.$store.state.User;
+    
     this.form.HoraInicio = this.getCurrentTime();
 
     // Obtener técnicos
