@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="signaturePadCanvas" style="border: 1px solid #000;"></canvas>
+  <canvas id="signaturePadCanvas" ref="signaturePadCanvas" style="border: 1px solid #000;"></canvas>
 </template>
 
 <script>
@@ -10,8 +10,7 @@ export default {
     const canvas = this.$refs.signaturePadCanvas;
     this.signaturePad = new SignaturePad(canvas);
 
-    // Ajusta el tamaño del canvas
-    canvas.width = 375;
+    // Ajusta el tamaño del canva
     canvas.height = 200;
   },
   methods: {
@@ -31,3 +30,8 @@ export default {
   }
 };
 </script>
+<style>
+#signaturePadCanvas {
+  width: 100%;  /* O puedes usar % */
+}
+</style>
