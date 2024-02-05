@@ -30,7 +30,6 @@
 
               <p class="texto-tarea">
                 {{ visita.fieldData["Motivo Avería"] }}
-               
               </p>
             </NuxtLink>
           </div>
@@ -51,7 +50,6 @@
             </button>
           </div>
         </div>
-
       </div>
 
       <div v-if="this.loading === true" class="spinner-parent">
@@ -260,9 +258,9 @@ a {
   border-radius: 6px;
   margin-left: 2px;
   margin-right: 2px;
-  max-width: 416px;
   background-color: var(--color);
   align-items: center;
+  max-width: 430px;
 }
 
 .num-visita {
@@ -276,11 +274,11 @@ a {
 @media (max-width: 424px) {
   .tarea {
     display: grid;
-    grid-template-columns: 20% 80%;
+    grid-template-columns: 20% 60% 20%;
     width: 100%;
     border-bottom: 1px solid rgb(218, 218, 218);
     border-radius: 6px;
-    margin-left: 2px;
+    margin-left: -10px;
     margin-right: 2px;
   }
 }
@@ -328,5 +326,22 @@ a {
   color: white;
   padding: 0.4rem;
   border-radius: 0.2rem;
+}
+
+.boton-cerrar-tarea {
+  background-color: blue;
+  /* Color rojo para indicar una acción de "cerrar" */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  /* Espaciado respecto a los elementos de la tarea */
+}
+
+.boton-cerrar-tarea:hover {
+  background-color: #d32f2f;
+  /* Un tono más oscuro para el hover */
 }
 </style>

@@ -3,6 +3,8 @@ const visitasModel = {};
 const axios = require("axios");
 const https = require("https");
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+const fs = require('fs')
+const FormData = require('form-data')
 
 const serverName = process.env.FM_SERVER;
 const database = process.env.FM_DATABASE;
@@ -112,6 +114,8 @@ visitasModel.newVisita = async (sat) => {
 
 visitasModel.getVisitaServicio = async (id) => {
   let idSlug = id.substring(0, 1) + "/" + id.substring(1);
+  console.log("idSlug");
+  console.log(idSlug);
   const query = {
     query: [{ NumeroServicio: idSlug }],
     sort: [
@@ -256,7 +260,7 @@ visitasModel.borrarDocumento = async (idVisita, id) => {
 visitasModel.insertarSeguimiento = async (formulario) => {
   if (formulario.linFecha.length === 0) return false;
   if (formulario.HoraInicio.length === 0) return false;
-  // if (formulario.HoraFin.length === 0) return false;
+  if (formulario.linartcodref.length === 0) return false;
   if (formulario.DescripciónArt.length === 0) return false;
 
   const horaInicial = formulario.HoraInicio.split(":");
@@ -282,7 +286,8 @@ visitasModel.insertarSeguimiento = async (formulario) => {
       linFecha: fechaModificada,
       HoraInicioReal: formulario.HoraInicio,
       HoraFinReal: formulario.HoraFin,
-      DescripciónArt : formulario.DescripciónArt,
+      DescripciónArt: formulario.DescripciónArt,
+      linartcodref: formulario.linartcodref,
       NumeroServicio: formulario.NumeroServicio,
       Tec: formulario.Tec,
       Tipo: formulario.Tipo,
@@ -345,93 +350,122 @@ visitasModel.insertarMaterial = async (formulario) => {
 /**
  * @name        updateVisita
  * @description Actualiza una tarea en Filemaker
- * @param       {string} id         El RecordId de la tarea de FM a modificar
  * @param       {object} data       Los datos a modificar
  * @returns     {bool}
  */
-visitasModel.updateVisita = async (id,body) => {
-  const data = {
+visitasModel.updateVisita = async (req, recordId) => {
+
+
+  // Primero, actualiza el estado de la visita
+  const dataEstado = {
     fieldData: {
       EstadoServicio: "TERMINADO"
     }
-  }
-
-  const update = await axios.patch(
-    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasServiciosAPI/records/${id}`,
-    data,
-    {
-      httpsAgent: httpsAgent,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${visitasModel.fmtoken}`,
-      },
-    }
-  );
-
-  const dataUbicacion = {
-    fieldData: {
-      ClienteAccion: "VISITA TERMINADA",
-      Direccion: "",
-      fecha: body.fecha,
-      FechaHora: body.fecha + " " + body.horaEntrada,
-      IdLineaVisita: "",
-      idSat: "",
-      Notas: "",
-      Tecnico: body.tec,
-      Ubicacion: body.UserLocation
-    },
   };
 
-  let respuestaUbi = await axios.post(
-    `https://${serverName}/fmi/data/v1/databases/${database}/layouts/UbicaciónApi/records`,
-    dataUbicacion,
-    {
-      httpsAgent: httpsAgent,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${visitasModel.fmtoken}`,
-      },
-    }
-  );
+  try {
+    const updateEstado = await axios.patch(
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasAPI/records/${recordId}`,
+      dataEstado,
+      {
+        httpsAgent: httpsAgent,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${visitasModel.fmtoken}`,
+        },
+      }
+    );
 
-  if (!respuestaUbi) {
-    console.log("Error al guardar la ubicación");
+    // Luego, sube la firma
+    let documento = fs.createReadStream(req[0].destination + req[0].filename);
+    const formdata = new FormData();
+    formdata.append("upload", documento);
+
+    const updateFirma = await axios.post(
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasAPI/records/${recordId}/containers/FirmaCliente/1`,
+      formdata,
+      {
+        httpsAgent: httpsAgent,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${visitasModel.fmtoken}`,
+          ...formdata.getHeaders(),
+        },
+      }
+    );
+
+    // Asegúrate de manejar correctamente las respuestas de las peticiones
+    if (updateEstado.data && updateFirma.data) {
+      return true; // Retorna true si ambas actualizaciones fueron exitosas
+    }
+  } catch (error) {
+    console.error("Error al actualizar la visita y subir la firma:", error);
     return false;
   }
-
-  return update ? true : false;
 };
 visitasModel.updatevisitas = async (id, req) => {
 
-  
+
 
   const data = {
-      fieldData: {
-        "DescripciónArt": req.DescripciónArt,
-        "HoraFinReal": req.HoraFinReal,
-        "HoraInicioReal": req.HoraInicioReal,
-      }
+    fieldData: {
+      "DescripciónArt": req.DescripciónArt,
+      "linartcodref": req.linartcodref,
+      "HoraFinReal": req.HoraFinReal,
+      "HoraInicioReal": req.HoraInicioReal,
+    }
   };
   try {
-    
-      let respuesta = await axios.patch(
-          `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SeguimientoVisitasAPI/records/${id}`,
-          data,
-          {
-              httpsAgent: httpsAgent,
-              headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${visitasModel.fmtoken}`,
-              },
-          }
-      );
 
-      return respuesta.data.response.modId;
+    let respuesta = await axios.patch(
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SeguimientoVisitasAPI/records/${id}`,
+      data,
+      {
+        httpsAgent: httpsAgent,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${visitasModel.fmtoken}`,
+        },
+      }
+    );
+
+    return respuesta.data.response.modId;
   } catch (err) {
-      console.log(err);
-      return false;
+    console.log(err);
+    return false;
   }
 
+};
+
+visitasModel.getArticulos = async (req) => {
+
+  try {
+    const query = {
+      query: [
+        {
+          CodigoEmpresa: "3",
+          Tipo: "M.Obra",
+        },
+      ],
+    };
+    let respuesta = await axios.post(
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/ArtículosApi/_find`,
+      query,
+      {
+        httpsAgent: httpsAgent,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${visitasModel.fmtoken}`,
+        },
+      }
+    );
+
+    const properList = respuesta.data.response.data;
+    return properList;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
 };
 
 module.exports = visitasModel;
