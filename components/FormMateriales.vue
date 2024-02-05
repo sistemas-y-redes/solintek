@@ -2,9 +2,9 @@
   <div class="new-data-form-parent">
     <form class="new-data-form" @submit.prevent="handleSubmit()">
       <!-- Input de Fecha -->
-      
+
       <!-- Input de Hora Inicio -->
-     
+
       <!-- Input de Unidades -->
       <b-row class="form-option my-3">
         <label v-if="!errorUnidades">Nº Unidades</label>
@@ -85,14 +85,14 @@ export default {
         throw error;
       }
 
-      if (this.form.Descripcion.length === 0) { 
+      if (this.form.Descripcion.length === 0) {
         errorMostrar = "comprueba la descripción"
         throw error
       }
-      
+
       const formulario = { ...this.form };
       this.loading = true;
-      
+
       this.$axios.$post(`/api/visitas/${this.visita[0].fieldData["Numero"]}/seguimiento`,
       {
         formulario,
@@ -116,9 +116,9 @@ export default {
 
       Swal.fire({
         icon: "success",
-        title: "Enviado a Filemaker",
+        title: "Material añadido",
         confirmButtonColor: "#000",
-        text: `Se ha enviado a Filemaker y será insertado en breves`,
+        text: `Se ha añadido el material correctamente`,
       });
 
       this.form.Descripcion = "";

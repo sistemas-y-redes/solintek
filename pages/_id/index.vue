@@ -811,9 +811,9 @@ export default {
         if (response) {
           Swal.fire({
             icon: "success",
-            title: "Enviado a Filemaker",
+            title: "Parte de horas actualizado",
             confirmButtonColor: "#000",
-            text: `Se ha enviado a Filemaker y será actualizado en breves`,
+            text: `Se ha actualizado el parte de trabajo correctamnete`,
           }).then(() => {
             this.$bvModal.hide('modal-editar-historico');
             this.resetModal();

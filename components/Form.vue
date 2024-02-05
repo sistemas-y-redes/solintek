@@ -136,9 +136,9 @@ export default {
 
       Swal.fire({
         icon: "success",
-        title: "Enviado a Filemaker",
+        title: "Parte de horas creado",
         confirmButtonColor: "#000",
-        text: `Se ha enviado a Filemaker y será insertado en breves`,
+        text: `Se ha creado el parte de trabajo correctamente`,
       }).then(() => {
         let rutaVariable = this.visita[0].fieldData.NumeroServicio;
         rutaVariable = rutaVariable.replace(/\//g, '');
