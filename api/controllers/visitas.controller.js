@@ -145,6 +145,19 @@ router.patch("/edit/:id", [auth.validateAccess], async (req, res) => {
   res.end("visitas: " + req.params.id + " cambiado")
 })
 
+router.post("/updateWork", [auth.validateAccess], async (req, res) => {
+
+  const update = await visitasModel.updateVisitaWork(req.body);
+
+  if (!update) {
+    res.writeHead(500)
+    res.end()
+    return;
+  }
+
+  res.end("update work")
+})
+
 router.post("/close", [auth.validateAccess, upload.array("firma")], async (req, res) => {
 
   if (!req.files) {

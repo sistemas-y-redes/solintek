@@ -137,22 +137,26 @@
                 <b-badge>Categoría: Intervención</b-badge>
 
               </div>
-              <div>
-                <b-button variant="primary" class="btn-block"
+              <div class="mx-3 mb-3">
+                <label for="campoExtra">Descripción Solución</label>
+                <textarea type="text" v-model="TrabajoRealizado"  class="form-control" @blur="handleBlur(visita.visitaFieldata['IdRecord'])"></textarea>
+              </div>
+              <div class="mx-3 mb-3 my-4">
+                <b-button variant="outline-dark" class="form-control"
                   @click="prepararCierreVisita(visita.visitaFieldata['IdRecord'])">Firmar
                   Visita</b-button>
               </div>
             </div>
           </div>
 
-          <div class="mb-2 tarea-parent" v-if="visita.visitaFieldata.TrabajoRealizado">
+          <!-- <div class="mb-2 tarea-parent" v-if="visita.visitaFieldata['TareaInicial']">
             <div class="realizado my-1">
               <span class="realizado-titulo">TRABAJO REALIZADO</span>
               <p class="realizado-texto">
-                {{ visita.visitaFieldata.TrabajoRealizado }}
+                {{ visita.visitaFieldata['TareaInicial'] }}
               </p>
             </div>
-          </div>
+          </div> -->
 
           <div>
             <!-- Pestañas -->
@@ -243,16 +247,10 @@
 
                     <b-row class="form-option my-3">
                       <label>Referencia</label>
-                      <b-form-select v-model="historialAEditar['VisitasLineas::linartcodref']" :options="articulos" @change="onArticuloChange"
-                        ></b-form-select>
+                      <b-form-select v-model="historialAEditar['VisitasLineas::linartcodref']" :options="articulos"
+                        @change="onArticuloChange"></b-form-select>
                     </b-row>
 
-                    <!-- Input de Descripción -->
-                    <!-- <b-row class="form-option my-3">
-                      <label>Descripción</label>
-                      <b-form-textarea v-model="historialAEditar['VisitasLineas::DescripciónArt']" class="textarea"
-                        placeholder="Introduce la acción realizada" required></b-form-textarea>
-                    </b-row> -->
 
                     <!-- Botón para guardar cambios -->
                     <b-row class="form-option my-4">
@@ -404,10 +402,10 @@
                 <p class="ml-2 text-center">No hay archivos a mostrar</p>
               </div>
             </div>
-            <b-modal id="modal-firma" ref="modalFirma" title="Firmar para Cerrar Visita" @ok="guardarFirma"
+            <b-modal id="modal-firma" ref="modalFirma" title="Finalizar visita" @ok="guardarFirma"
               ok-title="Guardar Firma" @cancel="cancelarFirma" cancel-title="Cancelar" :hide-footer="false">
 
-              <p>Por favor, firma a continuación para cambiar el estado de la visita a terminado:</p>
+              <p>Por favor, firma a continuación para finalizar la visita:</p>
               <SignaturePad ref="signaturePad" />
 
             </b-modal>
@@ -526,13 +524,14 @@ export default {
         'VisitasLineas::HoraInicioReal': '',
         'VisitasLineas::HoraFinReal': '',
         'VisitasLineas::linartcodref': '',
-        'VisitasLineas::DescripciónArt':'',
+        'VisitasLineas::DescripciónArt': '',
         'recordId': ''
         // Asegúrate de incluir todas las propiedades que necesites
       },
       tecnicos: [],
       idVisitaCerrar: null,
       articulos: [],
+      TrabajoRealizado: null
     };
   },
   methods: {
@@ -547,6 +546,37 @@ export default {
       this.$refs.signaturePad.clearSignature();
       this.$refs.modalFirma.hide();
     },
+    async handleBlur(idVisita) {
+    try {
+      // Asegúrate de que el comentario no esté vacío antes de enviar
+      if (this.TrabajoRealizado.trim().length === 0) {
+        throw new Error("El comentario está vacío");
+      }
+
+      // Configura los datos que enviarás, incluyendo el comentario
+      const data = {
+        TrabajoRealizado: this.TrabajoRealizado,
+        idVisita: idVisita
+        // Agrega cualquier otro dato que necesites enviar
+      };
+
+      // Realiza la petición POST con Axios
+      const response = await this.$axios.$post('/api/visitas/updateWork', data, {
+        headers: {
+          Authorization: `Bearer ${this.$cookies.get("TOKEN")}`, // Asegúrate de que la autenticación sea necesaria y esté configurada correctamente
+        },
+      });
+
+      // Maneja la respuesta del servidor como desees
+      console.log('Respuesta del servidor:', response);
+
+      // Opcional: Limpia el comentario después de enviarlo
+      this.comentario = '';
+    } catch (error) {
+      console.error('Error al enviar el comentario:', error);
+      // Opcional: Muestra un mensaje de error
+    }
+  },
     async guardarFirma() {
       try {
         const firmaBase64 = await this.$refs.signaturePad.saveSignature();
@@ -838,6 +868,9 @@ export default {
     this.fetchArticulos();
     await this.getVisita();
     this.loading = false;
+    if (this.visita.visitaFieldata && this.visita.visitaFieldata['TareaInicial']) {
+    this.TrabajoRealizado = this.visita.visitaFieldata['TareaInicial'];
+  }
   },
   components: { FormMateriales, Form },
 };
@@ -1134,9 +1167,5 @@ export default {
   color: white;
   padding: 0.4rem;
   border-radius: 0.2rem;
-}
-
-.btn-block {
-  width: 100% !important;
 }
 </style>

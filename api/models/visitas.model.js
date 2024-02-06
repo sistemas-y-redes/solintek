@@ -114,8 +114,6 @@ visitasModel.newVisita = async (sat) => {
 
 visitasModel.getVisitaServicio = async (id) => {
   let idSlug = id.substring(0, 1) + "/" + id.substring(1);
-  console.log("idSlug");
-  console.log(idSlug);
   const query = {
     query: [{ NumeroServicio: idSlug }],
     sort: [
@@ -419,6 +417,38 @@ visitasModel.updatevisitas = async (id, req) => {
 
     let respuesta = await axios.patch(
       `https://${serverName}/fmi/data/v1/databases/${database}/layouts/SeguimientoVisitasAPI/records/${id}`,
+      data,
+      {
+        httpsAgent: httpsAgent,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${visitasModel.fmtoken}`,
+        },
+      }
+    );
+
+    return respuesta.data.response.modId;
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+
+};
+
+visitasModel.updateVisitaWork = async (req) => {
+
+  recordId = req.idVisita;
+
+  const data = {
+    fieldData: {
+      TareaInicial: req.TrabajoRealizado
+    }
+  };
+
+  try {
+
+    let respuesta = await axios.patch(
+      `https://${serverName}/fmi/data/v1/databases/${database}/layouts/VisitasAPI/records/${recordId}`,
       data,
       {
         httpsAgent: httpsAgent,
