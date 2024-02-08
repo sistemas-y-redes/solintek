@@ -532,7 +532,8 @@ export default {
       tecnicos: [],
       idVisitaCerrar: null,
       articulos: [],
-      TrabajoRealizado: null
+      TrabajoRealizado: null,
+      TrabajoRealizadoPrevio: null
     };
   },
   methods: {
@@ -550,26 +551,27 @@ export default {
     async handleBlur(idVisita) {
       try {
 
+        if (this.TrabajoRealizado !== this.TrabajoRealizadoPrevio) {
+          // Configura los datos que enviarás, incluyendo el comentario
+          const data = {
+            TrabajoRealizado: this.TrabajoRealizado,
+            idVisita: idVisita
+            // Agrega cualquier otro dato que necesites enviar
+          };
 
-        // Configura los datos que enviarás, incluyendo el comentario
-        const data = {
-          TrabajoRealizado: this.TrabajoRealizado,
-          idVisita: idVisita
-          // Agrega cualquier otro dato que necesites enviar
-        };
+          // Realiza la petición POST con Axios
+          const response = await this.$axios.$post('/api/visitas/updateWork', data, {
+            headers: {
+              Authorization: `Bearer ${this.$cookies.get("TOKEN")}`, // Asegúrate de que la autenticación sea necesaria y esté configurada correctamente
+            },
+          });
 
-        // Realiza la petición POST con Axios
-        const response = await this.$axios.$post('/api/visitas/updateWork', data, {
-          headers: {
-            Authorization: `Bearer ${this.$cookies.get("TOKEN")}`, // Asegúrate de que la autenticación sea necesaria y esté configurada correctamente
-          },
-        });
+          // Maneja la respuesta del servidor como desees
+          console.log('Respuesta del servidor:', response);
 
-        // Maneja la respuesta del servidor como desees
-        console.log('Respuesta del servidor:', response);
-
-        // Opcional: Limpia el comentario después de enviarlo
-        this.comentario = '';
+          // Opcional: Limpia el comentario después de enviarlo
+          this.comentario = '';
+        }
       } catch (error) {
         console.error('Error al enviar el comentario:', error);
         // Opcional: Muestra un mensaje de error
@@ -881,6 +883,7 @@ export default {
     this.loading = false;
     if (this.visita.visitaFieldata && this.visita.visitaFieldata['TareaInicial']) {
       this.TrabajoRealizado = this.visita.visitaFieldata['TareaInicial'];
+      this.TrabajoRealizadoPrevio = this.visita.visitaFieldata['TareaInicial'];
     }
   },
   components: { FormMateriales, Form },
