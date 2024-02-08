@@ -1,5 +1,7 @@
 <template>
-  <canvas id="signaturePadCanvas" ref="signaturePadCanvas" style="border: 1px solid #000;"></canvas>
+   <div class="canvas-container">
+    <canvas id="signaturePadCanvas" ref="signaturePadCanvas" style="border: 1px solid #000;"></canvas>
+  </div>
 </template>
 
 <script>
@@ -11,7 +13,8 @@ export default {
     this.signaturePad = new SignaturePad(canvas);
 
     // Ajusta el tamaño del canva
-    canvas.height = 200;
+    canvas.width= 300;
+    canvas.height = 300;
   },
   methods: {
     saveSignature() {
@@ -31,7 +34,9 @@ export default {
 };
 </script>
 <style>
-#signaturePadCanvas {
-  width: 100%;  /* O puedes usar % */
+.canvas-container {
+  display: flex; /* Activa Flexbox */
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
 }
 </style>

@@ -139,7 +139,8 @@
               </div>
               <div class="mx-3 mb-3">
                 <label for="campoExtra">Descripción Solución</label>
-                <textarea type="text" v-model="TrabajoRealizado"  class="form-control" @blur="handleBlur(visita.visitaFieldata['IdRecord'])"></textarea>
+                <textarea type="text" v-model="TrabajoRealizado" class="form-control"
+                  @blur="handleBlur(visita.visitaFieldata['IdRecord'])"></textarea>
               </div>
               <div class="mx-3 mb-3 my-4">
                 <b-button variant="outline-dark" class="form-control"
@@ -547,38 +548,48 @@ export default {
       this.$refs.modalFirma.hide();
     },
     async handleBlur(idVisita) {
-    try {
-      // Asegúrate de que el comentario no esté vacío antes de enviar
-      if (this.TrabajoRealizado.trim().length === 0) {
-        throw new Error("El comentario está vacío");
+      try {
+
+
+        // Configura los datos que enviarás, incluyendo el comentario
+        const data = {
+          TrabajoRealizado: this.TrabajoRealizado,
+          idVisita: idVisita
+          // Agrega cualquier otro dato que necesites enviar
+        };
+
+        // Realiza la petición POST con Axios
+        const response = await this.$axios.$post('/api/visitas/updateWork', data, {
+          headers: {
+            Authorization: `Bearer ${this.$cookies.get("TOKEN")}`, // Asegúrate de que la autenticación sea necesaria y esté configurada correctamente
+          },
+        });
+
+        // Maneja la respuesta del servidor como desees
+        console.log('Respuesta del servidor:', response);
+
+        // Opcional: Limpia el comentario después de enviarlo
+        this.comentario = '';
+      } catch (error) {
+        console.error('Error al enviar el comentario:', error);
+        // Opcional: Muestra un mensaje de error
       }
-
-      // Configura los datos que enviarás, incluyendo el comentario
-      const data = {
-        TrabajoRealizado: this.TrabajoRealizado,
-        idVisita: idVisita
-        // Agrega cualquier otro dato que necesites enviar
-      };
-
-      // Realiza la petición POST con Axios
-      const response = await this.$axios.$post('/api/visitas/updateWork', data, {
-        headers: {
-          Authorization: `Bearer ${this.$cookies.get("TOKEN")}`, // Asegúrate de que la autenticación sea necesaria y esté configurada correctamente
-        },
-      });
-
-      // Maneja la respuesta del servidor como desees
-      console.log('Respuesta del servidor:', response);
-
-      // Opcional: Limpia el comentario después de enviarlo
-      this.comentario = '';
-    } catch (error) {
-      console.error('Error al enviar el comentario:', error);
-      // Opcional: Muestra un mensaje de error
-    }
-  },
+    },
     async guardarFirma() {
       try {
+
+        // Comprueba si TrabajoRealizado está vacío
+        if (!this.TrabajoRealizado || this.TrabajoRealizado.trim() === '') {
+          // Muestra un SweetAlert informando que el campo TrabajoRealizado es obligatorio
+          Swal.fire({
+            icon: 'error',
+            title: 'Campo obligatorio',
+            text: 'Debes completar el campo Descripción Solución.',
+          });
+          return; // Detiene la ejecución del método si TrabajoRealizado está vacío
+        }
+
+
         const firmaBase64 = await this.$refs.signaturePad.saveSignature();
         console.log(firmaBase64); // Ahora tienes la firma en base64 y puedes hacer algo con ella, como enviarla a un servidor
         // Convierte la cadena base64 a un archivo Blob
@@ -869,8 +880,8 @@ export default {
     await this.getVisita();
     this.loading = false;
     if (this.visita.visitaFieldata && this.visita.visitaFieldata['TareaInicial']) {
-    this.TrabajoRealizado = this.visita.visitaFieldata['TareaInicial'];
-  }
+      this.TrabajoRealizado = this.visita.visitaFieldata['TareaInicial'];
+    }
   },
   components: { FormMateriales, Form },
 };
