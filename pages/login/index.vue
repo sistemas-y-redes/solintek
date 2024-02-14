@@ -5,31 +5,35 @@
     </b-row>
     <b-row class="login-parent">
       <div class="login mb-4">
-          <div class="login-text my-4">
-            <h4><b>Bienvenido de nuevo</b></h4>
-            <span id="texto-bienvenida">Inicie sesión para ver su portal</span>
-          </div>
-          <form class="mb-2 mt-2" @submit.prevent="handleSubmit()">
-            <p v-if="mostrarErrores === true" class="error-message">Usuario o contraseña incorrectos, inténtelo de nuevo</p>
-            <b-row class="form-option mb-1">
-              <label>Usuario</label>
-              <b-form-input placeholder="usuario1234" class="form-input" v-model="form.usuario" type="text" name="usuario" />
-            </b-row>
+        <div class="login-text my-4">
+          <h4><b>Bienvenido de nuevo</b></h4>
+          <span id="texto-bienvenida">Inicie sesión para ver su portal</span>
+        </div>
+        <form class="mb-2 mt-2" @submit.prevent="handleSubmit()">
+          <p v-if="mostrarErrores === true" class="error-message">Usuario o contraseña incorrectos, inténtelo de nuevo</p>
+          <b-row class="form-option mb-1">
+            <label>Usuario</label>
+            <b-form-input placeholder="usuario1234" class="form-input" v-model="form.usuario" type="text"
+              name="usuario" />
+          </b-row>
 
-            <b-row class="form-option mb-1">
-              <label>Contraseña</label>
-              <b-form-input placeholder="......" class="form-input" v-model="form.password" type="password" name="password" />
-            </b-row>
+          <b-row class="form-option mb-1">
+            <label>Contraseña</label>
+            <b-form-input placeholder="......" class="form-input" v-model="form.password" type="password"
+              name="password" />
+          </b-row>
 
-            <b-row class="form-option my-4">
-              <button v-if="login === false" type="submit" id="submit"><h4 id="submit-texto"><b>Acceder</b></h4></button>
-              <div v-if="login === true" class="spinner-parent-login">
-                <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
-                <p>Cargando...</p>
-              </div>
-            </b-row>
-            
-          </form>
+          <b-row class="form-option my-4">
+            <button v-if="login === false" type="submit" id="submit">
+              <h4 id="submit-texto"><b>Acceder</b></h4>
+            </button>
+            <div v-if="login === true" class="spinner-parent-login">
+              <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+              <p>Cargando...</p>
+            </div>
+          </b-row>
+
+        </form>
       </div>
     </b-row>
   </b-col>
@@ -53,7 +57,7 @@ export default {
     async handleSubmit() {
       try {
         this.login = true;
-        const credenciales = {"usuario": this.form.usuario, "password": this.form.password}
+        const credenciales = { "usuario": this.form.usuario, "password": this.form.password }
 
         if (!credenciales.usuario || !credenciales.password) {
           this.mostrarErrores = true;
@@ -61,11 +65,14 @@ export default {
         };
 
         const response = await this.$axios.$post('/api/usuarios/login', credenciales);
-        
+
         if (response) {
-          console.log(response);
           this.login = false;
-          this.$cookies.set("TOKEN", response.token);
+          // Configura la cookie para que expire en 24 horas
+          const inOneDay = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+          this.$cookies.set("TOKEN", response.token, {
+            expires: inOneDay
+          });
           this.$store.commit('saveUser', response);
           this.$router.push('/');
         }
@@ -91,10 +98,12 @@ export default {
   margin-left: 16px;
   gap: 1rem;
 }
+
 .login-text {
   margin-left: 12px;
   margin-right: 12px;
 }
+
 .login-parent {
   background-color: var(--color);
   display: flex;
@@ -103,9 +112,11 @@ export default {
   flex-direction: row;
   height: 500px;
 }
+
 .logo-login {
   max-width: 250px;
 }
+
 #submit {
   background-color: black;
   color: var(--color);
@@ -117,29 +128,35 @@ export default {
   border-radius: 10px;
   margin-top: 1rem;
 }
-#submit > {
+
+#submit> {
   margin-top: 16px;
   margin-bottom: 16px;
 }
+
 #submit-texto {
   margin-bottom: auto;
   margin-top: auto;
 }
+
 @media (max-height: 750px) {
   .margin-top {
     margin-top: 80px;
   }
 }
+
 @media (min-height: 751px) {
   .margin-top {
     margin-top: 130px;
   }
 }
+
 .form-option {
   margin-left: 12px;
   margin-right: 12px;
   margin-bottom: 20px !important;
 }
+
 .form-input {
   background-color: var(--bg);
   border: none;
@@ -147,6 +164,7 @@ export default {
   height: 50px;
   width: -webkit-fill-available;
 }
+
 #texto-bienvenida {
   font-size: 18px !important;
 }
@@ -157,13 +175,14 @@ export default {
   text-align: center;
   margin: auto !important;
 }
+
 .spinner-parent-login .spinner-border {
   width: 100px;
   height: 100px;
 }
+
 .error-message {
   color: red;
   margin-left: 12px;
   margin-right: 12px;
-}
-</style>
+}</style>

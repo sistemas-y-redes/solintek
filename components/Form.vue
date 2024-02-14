@@ -140,9 +140,7 @@ export default {
         confirmButtonColor: "#000",
         text: `Se ha creado el parte de trabajo correctamente`,
       }).then(() => {
-        let rutaVariable = this.visita[0].fieldData.NumeroServicio;
-        rutaVariable = rutaVariable.replace(/\//g, '');
-        this.$router.go(-1);
+        this.$emit('form-success');
         //window.location.href = window.location.href
       });
 

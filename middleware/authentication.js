@@ -9,12 +9,12 @@ export default async ({ $axios, store, redirect, app, route }) => {
         });
 
         if (res) {
-            // store.commit('saveUser', res.data.username);
-            //store.commit('saveEmpleado', res.data.empleadoNombre);
+          const inOneDay = new Date(new Date().getTime() + 24 * 60 * 60 * 1000); // 24 horas desde ahora
+          app.$cookies.set("TOKEN", jwtToken, { expires: inOneDay }); // Reestablece la cookie con la nueva fecha de expiración
         }
     } catch (error) {
-        app.$cookies.set("TOKEN", "");
+      app.$cookies.remove("TOKEN");
         redirect('/login')
     }
-    
+
 }

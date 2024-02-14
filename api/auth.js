@@ -21,9 +21,9 @@ let auth = {}
  */
 auth.checkFilemakerToken = async token => {
   return await axios.get(`https://${process.env.FM_SERVER}/fmi/data/v1/databases/${process.env.FM_DATABASE}/layouts/`,
-    { 
+    {
       httpsAgent: httpsAgent,
-      headers: { Authorization: `Bearer ${token}` } 
+      headers: { Authorization: `Bearer ${token}` }
     }
   )
     .then(response => {
@@ -42,7 +42,6 @@ auth.checkFilemakerToken = async token => {
  * @returns     {string}
  */
 auth.renewFilemakerToken = async ({ usuario, password }) => {
-  console.log("renovar token")
   return axios
     .post(
       `https://${process.env.FM_SERVER}/fmi/data/v1/databases/${process.env.FM_DATABASE}/sessions`,
@@ -80,7 +79,7 @@ auth.validateAccess = async (req, res, next) => {
     // Comprobamos si el token de Filemaker es válido. Si no lo es, lo actualizamos para evitar errores en llamadas
     const isFmTokenValid = await auth.checkFilemakerToken(jwtData.fmtoken);
     if (!isFmTokenValid) jwtData.fmtoken = await auth.renewFilemakerToken({ usuario: jwtData.username, password: jwtData.password });
-    
+
     // Devolvemos la información en el middleware
     req.user = { valid: true, username: jwtData.username, id: jwtData.id, fmtoken: jwtData.fmtoken, jwt: token, codMobra: jwtData.codMobra };
     next();

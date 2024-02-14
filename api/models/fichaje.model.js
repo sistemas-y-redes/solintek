@@ -23,7 +23,6 @@ fichajeModel.findFichaje = async (req) => {
     query.query[0].Fecha = req.Fecha;
   }
 
-  console.log(query)
   try {
     let respuesta = await axios.post(
       `https://${serverName}/fmi/data/v1/databases/${database}/layouts/InformesApi/_find`,
@@ -37,7 +36,6 @@ fichajeModel.findFichaje = async (req) => {
       }
     );
     const fichaje = respuesta.data.response.data;
-    console.log(fichaje);
     return fichaje;
   } catch (error) {
     console.log("Error en encontrar Fichaje: " + error);
@@ -74,7 +72,6 @@ fichajeModel.newFichaje = async (req) => {
     }
   );
 
-  console.log(respuesta)
   if (!respuesta) {
     console.log("Error al crear nuevo informe");
     return false;
@@ -117,8 +114,8 @@ fichajeModel.newFichaje = async (req) => {
 /**
  * @name        getFichajeByRecordId
  * @description Obtiene el fichaje según la ID
- * @param       {object} id        El recordId   
- * @returns     {object}      
+ * @param       {object} id        El recordId
+ * @returns     {object}
  */
 
 fichajeModel.getFichajeByRecordId = async (id) => {
@@ -196,7 +193,7 @@ fichajeModel.updateFichaje = async (id, req) => {
   }
 
   return update ? true : false;
-  
+
 };
 
 module.exports = fichajeModel;

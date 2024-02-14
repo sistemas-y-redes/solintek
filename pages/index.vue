@@ -289,7 +289,7 @@ a {
 
 .texto-tarea {
   overflow: hidden;
-  white-space: nowrap;
+  white-space: wrap;
   /* Don't forget this one */
   text-overflow: ellipsis;
   margin: 0;

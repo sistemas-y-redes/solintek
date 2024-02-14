@@ -117,7 +117,7 @@
         </div>
     </div>
 </template>
-  
+
 <script>
 import Swal from "sweetalert2";
 import Datepicker from 'vuejs-datepicker';
@@ -264,7 +264,6 @@ export default {
             this.loading = false;
         },
         editarVacacion(vacation) {
-            console.log(vacation);
             this.$bvModal.show('modal-editar-historico');
             this.vacacionActual = vacation.fieldData;
             this.vacacionActual.recordId = vacation.recordId;
@@ -330,7 +329,7 @@ export default {
     },
 }
 </script>
-  
+
 <style scoped>
 
 /* Estilos generales para móviles */

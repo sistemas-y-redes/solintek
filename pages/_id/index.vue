@@ -135,7 +135,15 @@
                   {{ corregirHoras(visita.visitaFieldata["albhora"]) }}</b-badge>
                 <b-badge>Origen: {{ visita.visitaFieldata["Origen"] }}</b-badge>
                 <b-badge>Categoría: Intervención</b-badge>
-
+              </div>
+              <div class="mx-3 mb-3" v-if="visita.visitaFieldata && visita.visitaFieldata['NomContactoPantalla']">
+                <label for="campoExtra">Nombre Contacto: {{ visita.visitaFieldata["NomContactoPantalla"] }}</label>
+              </div>
+              <div class="mx-3 mb-3" v-if="visita.visitaFieldata && visita.visitaFieldata['Teléfono2Pantalla']">
+                <label for="campoExtra">Teléfono:</label>
+                <a :href="'tel:' + visita.visitaFieldata['Teléfono2Pantalla']">
+                  {{ visita.visitaFieldata['Teléfono2Pantalla'] }}
+                </a>
               </div>
               <div class="mx-3 mb-3">
                 <label for="campoExtra">Descripción Solución</label>
@@ -175,17 +183,7 @@
             <div class="div-pestaña" v-if="this.pestañaActiva == 'Histórico'">
               <b-row v-if="checkHistorico() || this.$store.state.Horas.length > 0" class="lista-historica">
                 <!-- Las horas almacenadas en store -->
-                <div v-for="(element, index) in this.$store.state.Horas" :key="index" class="store-loading historico">
-                  <span>
-                    Día:<b> {{ element.linFecha }}</b> de
-                    <b>{{ corregirHoras(element.HoraInicio) }}h</b>
-                    a
-                    <b>{{ corregirHoras(element.HoraFin) }}h</b>
-                  </span>
-                  <p class="historico-texto">
-                    {{ element.Descripcion }}
-                  </p>
-                </div>
+
 
                 <!-- Contenido de seguimientos -->
                 <div v-for="(Linea, index) in visita.VisitasLineas" :key="index" class="historico row" v-if="Linea['VisitasLineas::Tipo'] === 'M.Obra' ? true : false && Linea
@@ -424,7 +422,7 @@
             <span>VOLVER</span>
           </div>
           <!-- Formulario componente -->
-          <Form :visita="visita" :pestañaActiva="pestañaActiva" />
+          <Form :visita="visita" :pestañaActiva="pestañaActiva" @form-success="handleFormSuccess" />
         </div>
 
         <div v-if="FormActive && this.pestañaActiva === 'Materiales'">
@@ -540,6 +538,11 @@ export default {
     cambiarPestaña(PestañaSeleccionada) {
       this.pestañaActiva = PestañaSeleccionada;
     },
+    handleFormSuccess() {
+    // Cambia el estado para ocultar el formulario
+    this.FormActive = false;
+    this.getVisita();
+  },
     prepararCierreVisita(idVisita) {
       this.idVisitaCerrar = idVisita; // Guarda el id de la visita
       this.$refs.modalFirma.show(); // Muestra el canvas de firma
@@ -566,8 +569,6 @@ export default {
             },
           });
 
-          // Maneja la respuesta del servidor como desees
-          console.log('Respuesta del servidor:', response);
 
           // Opcional: Limpia el comentario después de enviarlo
           this.comentario = '';
@@ -593,7 +594,6 @@ export default {
 
 
         const firmaBase64 = await this.$refs.signaturePad.saveSignature();
-        console.log(firmaBase64); // Ahora tienes la firma en base64 y puedes hacer algo con ella, como enviarla a un servidor
         // Convierte la cadena base64 a un archivo Blob
         const blob = await fetch(firmaBase64).then(res => res.blob());
         const file = new File([blob], "signature.png", { type: "image/png" });

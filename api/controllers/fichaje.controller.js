@@ -30,7 +30,7 @@ router.post('/new', [auth.validateAccess], async (req, res) => {
         res.end()
         return
     }
-    
+
     res.end(recordId)
 })
 
@@ -48,8 +48,8 @@ router.post('/find', [auth.validateAccess], async (req, res) => {
         res.end('Vacio!')
         return
     }
-    
-    
+
+
     res.end(JSON.stringify(fichaje))
 })
 
@@ -62,7 +62,7 @@ router.post('/find', [auth.validateAccess], async (req, res) => {
  */
 router.get('/:id', [auth.validateAccess], async (req, res) => {
     const fichaje = await fichajeModel.getFichajeByRecordId(req.params.id)
-    
+
     // Si no ha devuelto una visita devuelve error
     if (!fichaje) {
         res.writeHead(400)
@@ -81,7 +81,6 @@ router.get('/:id', [auth.validateAccess], async (req, res) => {
  * @return {JSON}
  */
 router.patch("/edit/:id", [auth.validateAccess], async (req, res) => {
-    console.log(req.params.id, req.body)
     const update = fichajeModel.updateFichaje(req.params.id, req.body);
 
     if (!update) {

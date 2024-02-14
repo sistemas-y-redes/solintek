@@ -42,7 +42,7 @@ export default {
             },
           })
           this.$store.state.User = null;
-          this.$cookies.set("TOKEN", "");
+          this.$cookies.remove("TOKEN");
           borrarToken = true;
           this.$router.push("/login");
         }

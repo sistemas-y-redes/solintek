@@ -244,7 +244,6 @@ router.post('/:id/seguimiento', [auth.validateAccess], async (req, res) => {
 
 router.post('/articulos', [auth.validateAccess], async (req, res) => {
   const articulos = await visitasModel.getArticulos();
-  console.log(articulos);
   // Si no ha devuelto una visita devuelve error
   if (!articulos) {
     res.writeHead(400)
