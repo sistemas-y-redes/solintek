@@ -171,7 +171,11 @@ export default {
             Authorization: `Bearer ${this.$cookies.get("TOKEN")}`,
           },
         });
+        let tec = this.$store.state.User.CódigoFM;
         this.visitas = response;
+        this.visitas = response.filter(visita => visita.fieldData.Tec === tec);
+
+        console.log(this.visitas);
       } catch (e) {
         this.error = true;
         console.log(e);

@@ -727,7 +727,7 @@ export default {
         let tec = this.$store.state.User.CódigoFM;
         this.visita.visitaFieldata = this.visita[0].fieldData;
         this.visita.VisitasLineas = this.visita[0].portalData.VisitasLineas;
-        this.visita.VisitasLineas = this.visita[0].portalData.VisitasLineas.filter(linea => linea["VisitasLineas::Tec"] === tec);
+        //this.visita.VisitasLineas = this.visita[0].portalData.VisitasLineas.filter(linea => linea["VisitasLineas::Tec"] === tec);
         this.visita.VisitasFotos = this.visita[0].portalData.VisitasFotos;
 
         if (this.loading === true) {
